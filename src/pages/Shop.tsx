@@ -127,12 +127,10 @@ const Shop = () => {
       <Header />
       <div className="container mx-auto px-container py-16">
         {/* Page Header */}
-        <div className="text-center mb-12">
-          <div className="flex justify-between items-center mb-4">
-            <h1 className="text-4xl md:text-5xl font-serif font-semibold tracking-tight">
-              Shop Collection
-            </h1>
-            {isAdmin && (
+        <div className="text-center mb-12 relative">
+          {/* Admin button positioned top right */}
+          {isAdmin && (
+            <div className="absolute top-0 right-0">
               <Dialog open={adminDialogOpen} onOpenChange={setAdminDialogOpen}>
                 <DialogTrigger asChild>
                   <Button variant="outline">
@@ -147,8 +145,13 @@ const Shop = () => {
                   <AdminShopManager />
                 </DialogContent>
               </Dialog>
-            )}
-          </div>
+            </div>
+          )}
+          
+          {/* Centered title */}
+          <h1 className="text-4xl md:text-5xl font-serif font-semibold tracking-tight mb-4">
+            Shop Collection
+          </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Discover our curated collection of premium designs crafted with exceptional quality and timeless elegance.
           </p>
