@@ -460,6 +460,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      decrement_stock: {
+        Args: { product_id: string; quantity: number }
+        Returns: undefined
+      }
       generate_order_number: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -467,6 +471,15 @@ export type Database = {
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: Database["public"]["Enums"]["app_role"]
+      }
+      get_product_analytics: {
+        Args: { product_id: string }
+        Returns: {
+          average_rating: number
+          review_count: number
+          total_revenue: number
+          total_sold: number
+        }[]
       }
       has_role: {
         Args: {
@@ -478,6 +491,15 @@ export type Database = {
       is_admin: {
         Args: Record<PropertyKey, never>
         Returns: boolean
+      }
+      validate_promo_code: {
+        Args: { code_text: string; order_amount: number }
+        Returns: {
+          discount_type: string
+          discount_value: number
+          final_amount: number
+          is_valid: boolean
+        }[]
       }
     }
     Enums: {

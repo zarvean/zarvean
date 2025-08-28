@@ -1,1 +1,13 @@
 project_id = "czehrjvblddsavlfemkx"
+
+[functions.create-order]
+verify_jwt = true
+
+[functions.send-notification]
+verify_jwt = false
+
+[functions.inventory-management]
+verify_jwt = true
+
+[functions.analytics]
+verify_jwt = true
