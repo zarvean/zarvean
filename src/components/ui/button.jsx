@@ -1,6 +1,6 @@
 import React from "react";
 
-const buttonVariants = {
+export const buttonVariants = {
   default: "btn btn-primary",
   destructive: "btn btn-danger", 
   outline: "btn btn-outline-primary",
@@ -52,7 +52,7 @@ const Button = React.forwardRef(({
 
 Button.displayName = "Button";
 
-export { Button, buttonVariants };
+export { Button };
 
 // Add custom styles for ghost and icon variants
 const customStyles = `
