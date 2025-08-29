@@ -52,7 +52,7 @@ const Button = React.forwardRef(({
 
 Button.displayName = "Button";
 
-export { Button };
+export { Button, buttonVariants };
 
 // Add custom styles for ghost and icon variants
 const customStyles = `
