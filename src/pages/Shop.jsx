@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
@@ -52,7 +51,7 @@ const Shop = () => {
   }, [searchParams, availableCategories])
 
   // Update URL when filters change
-  const updateURL = (newSearch?: string, newCategory?: string, newSort?: string) => {
+  const updateURL = (newSearch, newCategory, newSort) => {
     const params = new URLSearchParams(searchParams)
     
     if (newSearch !== undefined) {
@@ -107,38 +106,38 @@ const Shop = () => {
       }
     })
 
-  const handleSearchChange = (value: string) => {
+  const handleSearchChange = (value) => {
     setSearchQuery(value)
     updateURL(value, undefined, undefined)
   }
 
-  const handleCategoryChange = (value: string) => {
+  const handleCategoryChange = (value) => {
     setSelectedCategory(value)
     updateURL(undefined, value, undefined)
   }
 
-  const handleSortChange = (value: string) => {
+  const handleSortChange = (value) => {
     setSortBy(value)
     updateURL(undefined, undefined, value)
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <Header />
-      <div className="container mx-auto px-container py-16">
+      <div className="container py-5">
         {/* Page Header */}
-        <div className="text-center mb-12 relative">
+        <div className="text-center mb-5 position-relative">
           {/* Admin button positioned top right */}
           {isAdmin && (
-            <div className="absolute top-0 right-0">
+            <div className="position-absolute top-0 end-0">
               <Dialog open={adminDialogOpen} onOpenChange={setAdminDialogOpen}>
                 <DialogTrigger asChild>
                   <Button variant="outline">
-                    <Settings className="h-4 w-4 mr-2" />
+                    <Settings className="h-4 w-4 me-2" />
                     Manage Shop
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+                <DialogContent className="modal-xl" style={{ maxHeight: '90vh', overflowY: 'auto' }}>
                   <DialogHeader>
                     <DialogTitle>Shop Management</DialogTitle>
                   </DialogHeader>
@@ -149,64 +148,70 @@ const Shop = () => {
           )}
           
           {/* Centered title */}
-          <h1 className="text-4xl md:text-5xl font-serif font-semibold tracking-tight mb-4">
+          <h1 className="mb-3" style={{ fontSize: '2.5rem', fontFamily: 'Playfair Display, serif', fontWeight: '600', letterSpacing: '-0.025em' }}>
             Shop Collection
           </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-muted mx-auto" style={{ fontSize: '1.125rem', maxWidth: '32rem' }}>
             Discover our curated collection of premium designs crafted with exceptional quality and timeless elegance.
           </p>
         </div>
 
         {/* Global Filters & Search */}
-        <div className="flex flex-col lg:flex-row gap-6 mb-12">
+        <div className="row g-3 mb-5">
           {/* Search */}
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search products..."
-              value={searchQuery}
-              onChange={(e) => handleSearchChange(e.target.value)}
-              className="pl-10"
-            />
+          <div className="col-12 col-lg-6">
+            <div className="position-relative">
+              <Search className="position-absolute start-0 top-50 translate-middle-y ms-3" style={{ height: '1rem', width: '1rem', color: 'var(--muted-foreground)' }} />
+              <Input
+                placeholder="Search products..."
+                value={searchQuery}
+                onChange={(e) => handleSearchChange(e.target.value)}
+                className="ps-5"
+              />
+            </div>
           </div>
 
           {/* Category Filter */}
-          <Select value={selectedCategory} onValueChange={handleCategoryChange}>
-            <SelectTrigger className="w-full lg:w-48">
-              <SelectValue placeholder="Category" />
-            </SelectTrigger>
-            <SelectContent>
-              {availableCategories.map((category) => (
-                <SelectItem key={category} value={category}>
-                  {category}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="col-12 col-lg-3">
+            <Select value={selectedCategory} onValueChange={handleCategoryChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Category" />
+              </SelectTrigger>
+              <SelectContent>
+                {availableCategories.map((category) => (
+                  <SelectItem key={category} value={category}>
+                    {category}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
           {/* Sort */}
-          <Select value={sortBy} onValueChange={handleSortChange}>
-            <SelectTrigger className="w-full lg:w-48">
-              <SelectValue placeholder="Sort by" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="name">Name</SelectItem>
-              <SelectItem value="price-low">Price: Low to High</SelectItem>
-              <SelectItem value="price-high">Price: High to Low</SelectItem>
-              <SelectItem value="popularity">Popularity</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="col-12 col-lg-3">
+            <Select value={sortBy} onValueChange={handleSortChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="name">Name</SelectItem>
+                <SelectItem value="price-low">Price: Low to High</SelectItem>
+                <SelectItem value="price-high">Price: High to Low</SelectItem>
+                <SelectItem value="popularity">Popularity</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         {/* Category Pills */}
-        <div className="flex flex-wrap gap-2 mb-12">
+        <div className="d-flex flex-wrap mb-5" style={{ gap: '0.5rem' }}>
           {availableCategories.map((category) => (
             <Button
               key={category}
               variant={selectedCategory === category ? "default" : "outline"}
               size="sm"
               onClick={() => handleCategoryChange(category)}
-              className="rounded-full"
+              className="rounded-pill"
             >
               {category}
             </Button>
@@ -258,18 +263,18 @@ const Shop = () => {
             const paginatedProducts = sectionProducts.slice(startIndex, endIndex)
 
             return (
-              <section key={section.id} className={sectionIndex > 0 ? "mt-16" : ""}>
+              <section key={section.id} className={sectionIndex > 0 ? "mt-5" : ""}>
                 {/* Section Header */}
-                <div className="mb-8">
-                  <h2 className="text-3xl font-serif font-semibold tracking-tight mb-2">
+                <div className="mb-4">
+                  <h2 className="mb-2" style={{ fontSize: '1.875rem', fontFamily: 'Playfair Display, serif', fontWeight: '600', letterSpacing: '-0.025em' }}>
                     {section.name}
                   </h2>
-                  <p className="text-muted-foreground">
+                  <p className="text-muted">
                     {section.description}
                   </p>
-                  <div className="flex flex-wrap gap-1 mt-2">
+                  <div className="d-flex flex-wrap mt-2" style={{ gap: '0.25rem' }}>
                     {section.categories.map((category) => (
-                      <span key={category} className="text-xs bg-muted px-2 py-1 rounded">
+                      <span key={category} className="badge bg-secondary text-dark px-2 py-1 rounded" style={{ fontSize: '0.75rem' }}>
                         {category}
                       </span>
                     ))}
@@ -277,25 +282,26 @@ const Shop = () => {
                 </div>
 
                 {/* Section Products Grid - 2 items on mobile */}
-                <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8 mb-8">
+                <div className="row g-3 g-md-4 mb-4">
                   {paginatedProducts.map((product, index) => (
-                    <ProductCard 
-                      key={product.id} 
-                      product={product} 
-                      className="slide-up"
-                      style={{ animationDelay: `${index * 100}ms` }}
-                    />
+                    <div key={product.id} className="col-6 col-lg-3">
+                      <ProductCard 
+                        product={product} 
+                        className="slide-up h-100"
+                        style={{ animationDelay: `${index * 100}ms` }}
+                      />
+                    </div>
                   ))}
                 </div>
 
                 {/* Pagination */}
                 {totalPages > 1 && (
-                  <Pagination className="mt-8">
+                  <Pagination className="mt-4">
                     <PaginationContent>
                       <PaginationItem>
                         <PaginationPrevious 
                           onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                          className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                          className={currentPage === 1 ? "pe-none opacity-50" : "cursor-pointer"}
                         />
                       </PaginationItem>
                       
@@ -323,7 +329,7 @@ const Shop = () => {
                       <PaginationItem>
                         <PaginationNext 
                           onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                          className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                          className={currentPage === totalPages ? "pe-none opacity-50" : "cursor-pointer"}
                         />
                       </PaginationItem>
                     </PaginationContent>
@@ -331,7 +337,7 @@ const Shop = () => {
                 )}
 
                 {sectionProducts.length === 0 && !searchQuery && selectedCategory === "All" && (
-                  <div className="text-center py-8 text-muted-foreground">
+                  <div className="text-center py-5 text-muted">
                     <p>No products available in this section yet.</p>
                   </div>
                 )}
@@ -350,25 +356,26 @@ const Shop = () => {
 
               return (
                 <>
-                  <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8">
+                  <div className="row g-3 g-md-4">
                     {paginatedProducts.map((product, index) => (
-                      <ProductCard 
-                        key={product.id} 
-                        product={product} 
-                        className="slide-up"
-                        style={{ animationDelay: `${index * 100}ms` }}
-                      />
+                      <div key={product.id} className="col-6 col-lg-3">
+                        <ProductCard 
+                          product={product} 
+                          className="slide-up h-100"
+                          style={{ animationDelay: `${index * 100}ms` }}
+                        />
+                      </div>
                     ))}
                   </div>
 
                   {/* Pagination */}
                   {totalPages > 1 && (
-                    <Pagination className="mt-8">
+                    <Pagination className="mt-4">
                       <PaginationContent>
                         <PaginationItem>
                           <PaginationPrevious 
                             onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                            className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                            className={currentPage === 1 ? "pe-none opacity-50" : "cursor-pointer"}
                           />
                         </PaginationItem>
                         
@@ -396,7 +403,7 @@ const Shop = () => {
                         <PaginationItem>
                           <PaginationNext 
                             onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                            className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                            className={currentPage === totalPages ? "pe-none opacity-50" : "cursor-pointer"}
                           />
                         </PaginationItem>
                       </PaginationContent>
@@ -404,9 +411,9 @@ const Shop = () => {
                   )}
 
                   {filteredProducts.length === 0 && (
-                    <div className="text-center py-16">
-                      <h3 className="text-xl font-semibold mb-2">No products found</h3>
-                      <p className="text-muted-foreground">Try adjusting your search or filter criteria</p>
+                    <div className="text-center py-5">
+                      <h3 className="mb-2" style={{ fontSize: '1.25rem', fontWeight: '600' }}>No products found</h3>
+                      <p className="text-muted">Try adjusting your search or filter criteria</p>
                     </div>
                   )}
                 </>

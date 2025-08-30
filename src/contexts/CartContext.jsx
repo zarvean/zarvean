@@ -1,34 +1,7 @@
-
 import React, { createContext, useContext, useReducer, useEffect } from 'react'
 import { toast } from '@/hooks/use-toast'
 
-export interface CartItem {
-  id: string
-  name: string
-  price: number
-  image: string
-  quantity: number
-  size?: string
-  color?: string
-}
-
-interface CartState {
-  items: CartItem[]
-  total: number
-  discount: number
-  appliedPromoCode?: string
-}
-
-type CartAction = 
-  | { type: 'ADD_ITEM'; payload: Omit<CartItem, 'quantity'> & { quantity?: number } }
-  | { type: 'REMOVE_ITEM'; payload: { id: string; size?: string; color?: string } }
-  | { type: 'UPDATE_QUANTITY'; payload: { id: string; size?: string; color?: string; quantity: number } }
-  | { type: 'CLEAR_CART' }
-  | { type: 'LOAD_CART'; payload: CartItem[] }
-  | { type: 'APPLY_DISCOUNT'; payload: { discount: number; promoCode?: string } }
-  | { type: 'REMOVE_DISCOUNT' }
-
-const cartReducer = (state: CartState, action: CartAction): CartState => {
+const cartReducer = (state, action) => {
   switch (action.type) {
     case 'ADD_ITEM': {
       const existingItem = state.items.find(item => 
@@ -118,18 +91,7 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
   }
 }
 
-interface CartContextType extends CartState {
-  addItem: (item: Omit<CartItem, 'quantity'> & { quantity?: number }) => void
-  removeItem: (id: string, size?: string, color?: string) => void
-  updateQuantity: (id: string, quantity: number, size?: string, color?: string) => void
-  clearCart: () => void
-  itemCount: number
-  applyDiscount: (discount: number, promoCode?: string) => void
-  removeDiscount: () => void
-  finalTotal: number
-}
-
-const CartContext = createContext<CartContextType>({} as CartContextType)
+const CartContext = createContext({})
 
 export const useCart = () => {
   const context = useContext(CartContext)
@@ -139,7 +101,7 @@ export const useCart = () => {
   return context
 }
 
-export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const CartProvider = ({ children }) => {
   const [state, dispatch] = useReducer(cartReducer, { items: [], total: 0, discount: 0 })
 
   useEffect(() => {
@@ -158,7 +120,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem('cart', JSON.stringify(state.items))
   }, [state.items])
 
-  const addItem = (item: Omit<CartItem, 'quantity'> & { quantity?: number }) => {
+  const addItem = (item) => {
     dispatch({ type: 'ADD_ITEM', payload: item })
     toast({
       title: "Added to Cart",
@@ -166,7 +128,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     })
   }
 
-  const removeItem = (id: string, size?: string, color?: string) => {
+  const removeItem = (id, size, color) => {
     dispatch({ type: 'REMOVE_ITEM', payload: { id, size, color } })
     toast({
       title: "Removed from Cart", 
@@ -174,7 +136,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     })
   }
 
-  const updateQuantity = (id: string, quantity: number, size?: string, color?: string) => {
+  const updateQuantity = (id, quantity, size, color) => {
     dispatch({ type: 'UPDATE_QUANTITY', payload: { id, quantity, size, color } })
   }
 
@@ -182,7 +144,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     dispatch({ type: 'CLEAR_CART' })
   }
 
-  const applyDiscount = (discount: number, promoCode?: string) => {
+  const applyDiscount = (discount, promoCode) => {
     dispatch({ type: 'APPLY_DISCOUNT', payload: { discount, promoCode } })
   }
 
