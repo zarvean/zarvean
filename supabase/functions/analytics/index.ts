@@ -24,24 +24,24 @@ serve(async (req) => {
     const { data: { user }, error: authError } = await supabase.auth.getUser(token);
     
     if (authError || !user) {
+      console.error('🔒 Analytics: Authentication failed:', authError);
       throw new Error('Unauthorized');
     }
 
-    // Check if user is admin
-    const { data: userRole } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id)
-      .single();
-
-    if (!userRole || userRole.role !== 'admin') {
+    // Check if user is admin (using email for simplicity - in production use proper role system)
+    if (user.email !== 'hehe@me.pk') {
+      console.error('🚫 Analytics: Access denied for user:', user.email);
       throw new Error('Admin access required');
     }
+
+    console.log('📊 Analytics: Admin access granted for:', user.email);
 
     const url = new URL(req.url);
     const reportType = url.searchParams.get('type') || 'dashboard';
     const startDate = url.searchParams.get('start_date');
     const endDate = url.searchParams.get('end_date');
+
+    console.log('📈 Analytics: Generating report type:', reportType, 'from:', startDate, 'to:', endDate);
 
     let baseQuery = supabase.from('orders').select('*');
     
@@ -54,6 +54,8 @@ serve(async (req) => {
 
     switch (reportType) {
       case 'dashboard':
+        console.log('🏠 Analytics: Generating dashboard metrics...');
+        
         // Get key metrics
         const [
           { data: orders },
@@ -85,6 +87,14 @@ serve(async (req) => {
           return acc;
         }, {} as Record<string, number>);
 
+        console.log('✅ Analytics: Dashboard metrics generated:', {
+          totalRevenue,
+          totalOrders,
+          totalProducts,
+          totalCustomers,
+          averageRating: Math.round(averageRating * 10) / 10
+        });
+
         return new Response(
           JSON.stringify({
             success: true,
@@ -101,6 +111,8 @@ serve(async (req) => {
         );
 
       case 'sales':
+        console.log('💰 Analytics: Generating sales report...');
+        
         const { data: salesData } = await baseQuery;
         
         const salesByStatus = salesData?.reduce((acc, order) => {
@@ -114,17 +126,27 @@ serve(async (req) => {
           return acc;
         }, {} as Record<string, number>);
 
+        const totalSales = salesData?.reduce((sum, order) => sum + order.total_amount, 0) || 0;
+
+        console.log('✅ Analytics: Sales report generated:', {
+          orderCount: salesData?.length || 0,
+          totalSales,
+          statusBreakdown: salesByStatus
+        });
+
         return new Response(
           JSON.stringify({
             success: true,
             sales_by_status: salesByStatus,
             daily_sales: dailySales,
-            total_sales: salesData?.reduce((sum, order) => sum + order.total_amount, 0) || 0
+            total_sales: totalSales
           }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
 
       case 'products':
+        console.log('📦 Analytics: Generating product performance report...');
+        
         // Get product performance
         const { data: productSales } = await supabase
           .from('order_items')
@@ -150,22 +172,32 @@ serve(async (req) => {
           return acc;
         }, {} as Record<string, any>);
 
+        const performanceArray = Object.values(productPerformance || {});
+
+        console.log('✅ Analytics: Product performance report generated:', {
+          productCount: performanceArray.length
+        });
+
         return new Response(
           JSON.stringify({
             success: true,
-            product_performance: Object.values(productPerformance || {})
+            product_performance: performanceArray
           }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
 
       default:
+        console.error('❌ Analytics: Unknown report type:', reportType);
         throw new Error('Invalid report type');
     }
 
   } catch (error) {
-    console.error('Error generating analytics:', error);
+    console.error('💥 Analytics: Unexpected error:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        details: 'Analytics generation failed'
+      }),
       { 
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 

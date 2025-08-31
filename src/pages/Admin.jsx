@@ -1,23 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { Label } from '../components/ui/label';
+import { Textarea } from '../components/ui/textarea';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { Badge } from '../components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Plus, Edit, Trash2, Truck } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/hooks/use-toast';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import AdminShopManager from '@/components/AdminShopManager';
-import ReviewsManager from '@/components/ReviewsManager';
-import PromoCodesManager from '@/components/PromoCodesManager';
+import { supabase } from '../integrations/supabase/client';
+import { toast } from '../hooks/use-toast';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+import AdminShopManager from '../components/AdminShopManager';
+import ReviewsManager from '../components/ReviewsManager';
+import PromoCodesManager from '../components/PromoCodesManager';
 
 interface Product {
   id: string;
@@ -74,18 +74,26 @@ const Admin = () => {
 
   const fetchData = async () => {
     try {
+      console.log('🔄 Admin: Fetching products and categories from database...');
       const [productsResponse, categoriesResponse] = await Promise.all([
         supabase.from('products').select('*').order('created_at', { ascending: false }),
         supabase.from('categories').select('*').order('name')
       ]);
 
-      if (productsResponse.error) throw productsResponse.error;
-      if (categoriesResponse.error) throw categoriesResponse.error;
+      if (productsResponse.error) {
+        console.error('❌ Admin: Error fetching products:', productsResponse.error);
+        throw productsResponse.error;
+      }
+      if (categoriesResponse.error) {
+        console.error('❌ Admin: Error fetching categories:', categoriesResponse.error);
+        throw categoriesResponse.error;
+      }
 
+      console.log(`✅ Admin: Successfully fetched ${productsResponse.data?.length || 0} products and ${categoriesResponse.data?.length || 0} categories`);
       setProducts(productsResponse.data || []);
       setCategories(categoriesResponse.data || []);
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('❌ Admin: Error fetching data:', error);
       toast({
         title: "Error",
         description: "Failed to load data",
@@ -133,7 +141,7 @@ const Admin = () => {
     setIsAddDialogOpen(true);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     const productData = {
@@ -153,27 +161,37 @@ const Admin = () => {
 
     try {
       if (editingProduct) {
+        console.log('🔄 Admin: Updating product:', editingProduct.name, 'with data:', productData);
         const { error } = await supabase
           .from('products')
           .update(productData)
           .eq('id', editingProduct.id);
         
-        if (error) throw error;
+        if (error) {
+          console.error('❌ Admin: Error updating product:', error);
+          throw error;
+        }
         
+        console.log('✅ Admin: Product updated successfully:', editingProduct.name);
         toast({
           title: "Success",
-          description: "Product updated successfully"
+          description: `Product "${formData.name}" updated successfully`
         });
       } else {
+        console.log('🔄 Admin: Creating new product:', formData.name, 'with data:', productData);
         const { error } = await supabase
           .from('products')
           .insert([productData]);
         
-        if (error) throw error;
+        if (error) {
+          console.error('❌ Admin: Error creating product:', error);
+          throw error;
+        }
         
+        console.log('✅ Admin: Product created successfully:', formData.name);
         toast({
           title: "Success",
-          description: "Product created successfully"
+          description: `Product "${formData.name}" created successfully`
         });
       }
       
@@ -181,7 +199,7 @@ const Admin = () => {
       resetForm();
       fetchData();
     } catch (error) {
-      console.error('Error saving product:', error);
+      console.error('❌ Admin: Error saving product:', error);
       toast({
         title: "Error",
         description: "Failed to save product",
@@ -190,25 +208,30 @@ const Admin = () => {
     }
   };
 
-  const handleDelete = async (productId: string) => {
-    if (!confirm('Are you sure you want to delete this product?')) return;
+  const handleDelete = async (productId, productName) => {
+    if (!confirm(`Are you sure you want to delete "${productName}"? This action cannot be undone.`)) return;
     
     try {
+      console.log('🔄 Admin: Deleting product:', productName, 'ID:', productId);
       const { error } = await supabase
         .from('products')
         .delete()
         .eq('id', productId);
       
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Admin: Error deleting product:', error);
+        throw error;
+      }
       
+      console.log('✅ Admin: Product deleted successfully:', productName);
       toast({
         title: "Success",
-        description: "Product deleted successfully"
+        description: `Product "${productName}" deleted successfully`
       });
       
       fetchData();
     } catch (error) {
-      console.error('Error deleting product:', error);
+      console.error('❌ Admin: Error deleting product:', error);
       toast({
         title: "Error",
         description: "Failed to delete product",
@@ -432,7 +455,7 @@ const Admin = () => {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => handleDelete(product.id)}
+                            onClick={() => handleDelete(product.id, product.name)}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>

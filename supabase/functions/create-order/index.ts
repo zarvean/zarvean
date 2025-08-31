@@ -24,28 +24,42 @@ serve(async (req) => {
     const { data: { user }, error: authError } = await supabase.auth.getUser(token);
     
     if (authError || !user) {
+      console.error('🔒 Create Order: Authentication failed:', authError);
       throw new Error('Unauthorized');
     }
 
-    const { items, shipping_address, billing_address, promo_code } = await req.json();
+    console.log('🚀 Create Order: Processing order for user:', user.email);
+
+    const { items, shipping_address, billing_address, promo_code, payment_method, notes } = await req.json();
+
+    console.log('📦 Create Order: Order details:', {
+      itemCount: items?.length || 0,
+      shipping_address: shipping_address ? 'provided' : 'missing',
+      payment_method: payment_method || 'cod',
+      promo_code: promo_code || 'none'
+    });
 
     // Calculate total amount
     let total = 0;
     const orderItems = [];
 
+    console.log('🔍 Create Order: Validating order items...');
+
     for (const item of items) {
       const { data: product } = await supabase
         .from('products')
-        .select('price, stock_quantity')
+        .select('price, stock_quantity, name')
         .eq('id', item.product_id)
         .single();
 
       if (!product) {
+        console.error('❌ Create Order: Product not found:', item.product_id);
         throw new Error(`Product ${item.product_id} not found`);
       }
 
       if (product.stock_quantity < item.quantity) {
-        throw new Error(`Insufficient stock for product ${item.product_id}`);
+        console.error('❌ Create Order: Insufficient stock for product:', product.name);
+        throw new Error(`Insufficient stock for ${product.name}`);
       }
 
       const itemTotal = product.price * item.quantity;
@@ -58,11 +72,17 @@ serve(async (req) => {
         color: item.color,
         size: item.size,
       });
+
+      console.log(`✅ Create Order: Validated item - ${product.name} x${item.quantity} = $${itemTotal}`);
     }
+
+    console.log('💰 Create Order: Subtotal calculated:', total);
 
     // Apply promo code if provided
     let discount = 0;
     if (promo_code) {
+      console.log('🎟️ Create Order: Validating promo code:', promo_code);
+      
       const { data: promo } = await supabase
         .from('promo_codes')
         .select('*')
@@ -85,15 +105,25 @@ serve(async (req) => {
               .from('promo_codes')
               .update({ used_count: promo.used_count + 1 })
               .eq('id', promo.id);
+              
+            console.log('✅ Create Order: Promo code applied - Discount:', discount);
+          } else {
+            console.log('❌ Create Order: Order amount below minimum for promo code');
           }
+        } else {
+          console.log('❌ Create Order: Promo code expired');
         }
+      } else {
+        console.log('❌ Create Order: Invalid or usage limit exceeded for promo code');
       }
     }
 
     // Generate order number
     const orderNumber = `ORD-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+    console.log('🔢 Create Order: Generated order number:', orderNumber);
 
     // Create order
+    console.log('🏗️ Create Order: Creating order in database...');
     const { data: order, error: orderError } = await supabase
       .from('orders')
       .insert({
@@ -102,15 +132,23 @@ serve(async (req) => {
         total_amount: total,
         shipping_address,
         billing_address: billing_address || shipping_address,
+        payment_method: payment_method || 'cod',
+        notes: notes || null,
         status: 'pending',
         payment_status: 'pending',
       })
       .select()
       .single();
 
-    if (orderError) throw orderError;
+    if (orderError) {
+      console.error('❌ Create Order: Error creating order:', orderError);
+      throw orderError;
+    }
+
+    console.log('✅ Create Order: Order created successfully:', order.id);
 
     // Create order items
+    console.log('📝 Create Order: Creating order items...');
     const orderItemsWithOrderId = orderItems.map(item => ({
       ...item,
       order_id: order.id,
@@ -120,17 +158,29 @@ serve(async (req) => {
       .from('order_items')
       .insert(orderItemsWithOrderId);
 
-    if (itemsError) throw itemsError;
+    if (itemsError) {
+      console.error('❌ Create Order: Error creating order items:', itemsError);
+      throw itemsError;
+    }
+
+    console.log('✅ Create Order: Order items created successfully');
 
     // Update product stock
+    console.log('📦 Create Order: Updating product stock...');
     for (const item of items) {
       await supabase.rpc('decrement_stock', {
         product_id: item.product_id,
         quantity: item.quantity,
       });
+      console.log('📦 Create Order: Stock decremented for product:', item.product_id);
     }
 
-    console.log('Order created successfully:', order.id);
+    console.log('🎉 Create Order: Order completed successfully:', {
+      orderId: order.id,
+      orderNumber: orderNumber,
+      total: total,
+      discount: discount
+    });
 
     return new Response(
       JSON.stringify({ 
@@ -144,9 +194,12 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Error creating order:', error);
+    console.error('💥 Create Order: Unexpected error:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        details: 'Order creation failed'
+      }),
       { 
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
