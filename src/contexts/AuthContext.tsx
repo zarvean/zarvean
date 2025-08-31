@@ -1,7 +1,20 @@
+
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { toast } from '@/hooks/use-toast'
 
-const AuthContext = createContext({})
+interface LocalUser {
+  id: string
+  email: string
+}
+
+interface AuthContextType {
+  user: LocalUser | null
+  loading: boolean
+  signIn: (email: string, password: string) => Promise<void>
+  signOut: () => Promise<void>
+}
+
+const AuthContext = createContext<AuthContextType>({} as AuthContextType)
 
 export const useAuth = () => {
   const context = useContext(AuthContext)
@@ -11,8 +24,8 @@ export const useAuth = () => {
   return context
 }
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null)
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<LocalUser | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -24,7 +37,7 @@ export const AuthProvider = ({ children }) => {
     setLoading(false)
   }, [])
 
-  const signIn = async (email, password) => {
+  const signIn = async (email: string, password: string) => {
     // Local authentication - check for admin credentials
     if (email === 'hehe@me.pk' && password === 'skibidi.me') {
       const localUser = { id: '1', email }
