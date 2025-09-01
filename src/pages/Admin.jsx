@@ -8,7 +8,7 @@ import { Textarea } from '../components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '../components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Plus, Edit, Trash2, Truck } from 'lucide-react';
 import { supabase } from '../integrations/supabase/client';
@@ -19,32 +19,13 @@ import AdminShopManager from '../components/AdminShopManager';
 import ReviewsManager from '../components/ReviewsManager';
 import PromoCodesManager from '../components/PromoCodesManager';
 
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  description: string;
-  image_url: string;
-  category_id: string;
-  stock_quantity: number;
-  is_featured: boolean;
-  colors: string[];
-  sizes: string[];
-  in_stock: boolean;
-}
-
-interface Category {
-  id: string;
-  name: string;
-}
-
 const Admin = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [editingProduct, setEditingProduct] = useState(null);
   const [loading, setLoading] = useState(true);
 
   // Form state
@@ -122,7 +103,7 @@ const Admin = () => {
     setEditingProduct(null);
   };
 
-  const handleEdit = (product: Product) => {
+  const handleEdit = (product) => {
     setEditingProduct(product);
     setFormData({
       name: product.name,
@@ -135,8 +116,8 @@ const Admin = () => {
       colors: Array.isArray(product.colors) ? product.colors.join(', ') : '',
       sizes: Array.isArray(product.sizes) ? product.sizes.join(', ') : '',
       in_stock: product.in_stock,
-      sale_percentage: (product as any).sale_percentage?.toString() || '',
-      tags: (product as any).tags?.join(', ') || ''
+      sale_percentage: product.sale_percentage?.toString() || '',
+      tags: product.tags?.join(', ') || ''
     });
     setIsAddDialogOpen(true);
   };
@@ -271,6 +252,9 @@ const Admin = () => {
                   <DialogTitle>
                     {editingProduct ? 'Edit Product' : 'Add New Product'}
                   </DialogTitle>
+                  <DialogDescription>
+                    {editingProduct ? 'Update the product details below.' : 'Fill in the details to add a new product to your store.'}
+                  </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
