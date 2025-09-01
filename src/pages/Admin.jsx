@@ -44,39 +44,65 @@ const Admin = () => {
     tags: ''
   });
 
-  // Check admin access
+  // Check admin access and get session
   useEffect(() => {
-    if (!user || user.email !== 'hehe@me.pk') {
-      navigate('/auth');
-      return;
-    }
-    fetchData();
-  }, [user, navigate]);
+    const checkAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        console.log('🔐 Admin: Checking authentication, session:', session?.user?.email);
+        
+        if (!session || session.user.email !== 'hehe@me.pk') {
+          console.error('❌ Admin: Unauthorized access. Required: hehe@me.pk, Got:', session?.user?.email);
+          navigate('/auth');
+          return;
+        }
+        
+        console.log('✅ Admin: Authentication successful for:', session.user.email);
+        fetchData();
+      } catch (error) {
+        console.error('❌ Admin: Auth check failed:', error);
+        navigate('/auth');
+      }
+    };
+    
+    checkAuth();
+  }, [navigate]);
 
   const fetchData = async () => {
     try {
       console.log('🔄 Admin: Fetching products and categories from database...');
       
-      // Check if user is authenticated and is admin
+      // Verify session is still valid
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session || session.user.email !== 'hehe@me.pk') {
-        console.error('❌ Admin: Unauthorized access attempt');
+      if (!session) {
+        console.error('❌ Admin: No valid session found');
         navigate('/auth');
         return;
       }
+
+      console.log('🔄 Admin: Making database queries with session:', session.user.email);
 
       const [productsResponse, categoriesResponse] = await Promise.all([
         supabase.from('products').select('*').order('created_at', { ascending: false }),
         supabase.from('categories').select('*').order('name')
       ]);
 
+      console.log('📊 Admin: Products response:', productsResponse);
+      console.log('📊 Admin: Categories response:', categoriesResponse);
+
       if (productsResponse.error) {
         console.error('❌ Admin: Error fetching products:', productsResponse.error);
-        throw productsResponse.error;
+        if (productsResponse.error.message.includes('JWT')) {
+          navigate('/auth');
+          return;
+        }
       }
       if (categoriesResponse.error) {
         console.error('❌ Admin: Error fetching categories:', categoriesResponse.error);
-        throw categoriesResponse.error;
+        if (categoriesResponse.error.message.includes('JWT')) {
+          navigate('/auth');
+          return;
+        }
       }
 
       console.log(`✅ Admin: Successfully fetched ${productsResponse.data?.length || 0} products and ${categoriesResponse.data?.length || 0} categories`);
@@ -134,6 +160,20 @@ const Admin = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    console.log('🔄 Admin: Form submission started');
+    console.log('📝 Admin: Form data:', formData);
+    
+    // Validate required fields
+    if (!formData.name || !formData.price || !formData.stock_quantity) {
+      console.error('❌ Admin: Missing required fields');
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields (name, price, stock quantity)",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     // Check authentication first
     const { data: { session } } = await supabase.auth.getSession();
     if (!session || session.user.email !== 'hehe@me.pk') {
@@ -143,27 +183,34 @@ const Admin = () => {
         description: "Unauthorized access. Please login as admin.",
         variant: "destructive"
       });
+      navigate('/auth');
       return;
     }
     
+    console.log('✅ Admin: Authentication verified for:', session.user.email);
+    
     const productData = {
-      name: formData.name,
+      name: formData.name.trim(),
       price: parseFloat(formData.price),
-      description: formData.description,
-      image_url: formData.image_url,
+      description: formData.description?.trim() || '',
+      image_url: formData.image_url?.trim() || '',
       category_id: formData.category_id || null,
       stock_quantity: parseInt(formData.stock_quantity),
-      is_featured: formData.is_featured,
-      colors: formData.colors.split(',').map(c => c.trim()).filter(c => c),
-      sizes: formData.sizes.split(',').map(s => s.trim()).filter(s => s),
-      in_stock: formData.in_stock,
+      is_featured: Boolean(formData.is_featured),
+      colors: formData.colors ? formData.colors.split(',').map(c => c.trim()).filter(c => c) : [],
+      sizes: formData.sizes ? formData.sizes.split(',').map(s => s.trim()).filter(s => s) : [],
+      in_stock: Boolean(formData.in_stock),
       sale_percentage: formData.sale_percentage ? parseInt(formData.sale_percentage) : null,
-      tags: formData.tags.split(',').map(t => t.trim()).filter(t => t)
+      tags: formData.tags ? formData.tags.split(',').map(t => t.trim()).filter(t => t) : []
     };
+
+    console.log('📦 Admin: Prepared product data:', productData);
 
     try {
       if (editingProduct) {
-        console.log('🔄 Admin: Updating product in Supabase:', editingProduct.name, 'with data:', productData);
+        console.log('🔄 Admin: Updating existing product in Supabase:', editingProduct.name);
+        console.log('📝 Admin: Update payload:', productData);
+        
         const { data, error } = await supabase
           .from('products')
           .update(productData)
@@ -171,30 +218,55 @@ const Admin = () => {
           .select()
           .single();
         
+        console.log('📊 Admin: Update response:', { data, error });
+        
         if (error) {
-          console.error('❌ Admin: Error updating product:', error);
+          console.error('❌ Admin: Supabase update error:', error);
           throw error;
         }
         
+        if (!data) {
+          console.error('❌ Admin: No data returned from update');
+          throw new Error('No data returned from update operation');
+        }
+        
         console.log('✅ Admin: Product updated successfully in database:', data.name);
+        
+        // Update local state
+        setProducts(prev => prev.map(p => p.id === editingProduct.id ? data : p));
+        
         toast({
           title: "Success",
           description: `Product "${data.name}" updated successfully`
         });
+        
       } else {
-        console.log('🔄 Admin: Creating new product in Supabase:', formData.name, 'with data:', productData);
+        console.log('🔄 Admin: Creating new product in Supabase:', formData.name);
+        console.log('📝 Admin: Insert payload:', productData);
+        
         const { data, error } = await supabase
           .from('products')
           .insert([productData])
           .select()
           .single();
         
+        console.log('📊 Admin: Insert response:', { data, error });
+        
         if (error) {
-          console.error('❌ Admin: Error creating product:', error);
+          console.error('❌ Admin: Supabase insert error:', error);
           throw error;
         }
         
+        if (!data) {
+          console.error('❌ Admin: No data returned from insert');
+          throw new Error('No data returned from insert operation');
+        }
+        
         console.log('✅ Admin: Product created successfully in database:', data.name);
+        
+        // Update local state
+        setProducts(prev => [data, ...prev]);
+        
         toast({
           title: "Success",
           description: `Product "${data.name}" created successfully`
@@ -203,12 +275,33 @@ const Admin = () => {
       
       setIsAddDialogOpen(false);
       resetForm();
-      fetchData();
+      
+      // Refresh data from database
+      setTimeout(() => {
+        fetchData();
+      }, 500);
+      
     } catch (error) {
       console.error('❌ Admin: Error saving product to database:', error);
+      console.error('❌ Admin: Error details:', {
+        message: error.message,
+        hint: error.hint,
+        code: error.code,
+        details: error.details
+      });
+      
+      let errorMessage = "Failed to save product";
+      if (error.message.includes('duplicate')) {
+        errorMessage = "A product with this name already exists";
+      } else if (error.message.includes('foreign key')) {
+        errorMessage = "Invalid category selected";
+      } else if (error.message) {
+        errorMessage = `Failed to save product: ${error.message}`;
+      }
+      
       toast({
         title: "Error",
-        description: `Failed to save product: ${error.message}`,
+        description: errorMessage,
         variant: "destructive"
       });
     }
@@ -216,6 +309,8 @@ const Admin = () => {
 
   const handleDelete = async (productId, productName) => {
     if (!confirm(`Are you sure you want to delete "${productName}"? This action cannot be undone.`)) return;
+    
+    console.log('🔄 Admin: Delete operation initiated for:', productName, 'ID:', productId);
     
     // Check authentication first
     const { data: { session } } = await supabase.auth.getSession();
@@ -226,30 +321,53 @@ const Admin = () => {
         description: "Unauthorized access. Please login as admin.",
         variant: "destructive"
       });
+      navigate('/auth');
       return;
     }
     
+    console.log('✅ Admin: Authentication verified for delete operation:', session.user.email);
+    
     try {
-      console.log('🔄 Admin: Deleting product from Supabase:', productName, 'ID:', productId);
-      const { error } = await supabase
+      console.log('🔄 Admin: Deleting product from Supabase database...');
+      console.log('📝 Admin: Delete params:', { productId, productName });
+      
+      const { data, error } = await supabase
         .from('products')
         .delete()
-        .eq('id', productId);
+        .eq('id', productId)
+        .select();
+      
+      console.log('📊 Admin: Delete response:', { data, error });
       
       if (error) {
-        console.error('❌ Admin: Error deleting product from database:', error);
+        console.error('❌ Admin: Supabase delete error:', error);
         throw error;
       }
       
       console.log('✅ Admin: Product deleted successfully from database:', productName);
+      
+      // Update local state
+      setProducts(prev => prev.filter(p => p.id !== productId));
+      
       toast({
         title: "Success",
         description: `Product "${productName}" deleted successfully`
       });
       
-      fetchData();
+      // Refresh data from database
+      setTimeout(() => {
+        fetchData();
+      }, 500);
+      
     } catch (error) {
       console.error('❌ Admin: Error deleting product from database:', error);
+      console.error('❌ Admin: Delete error details:', {
+        message: error.message,
+        hint: error.hint,
+        code: error.code,
+        details: error.details
+      });
+      
       toast({
         title: "Error",
         description: `Failed to delete product: ${error.message}`,
