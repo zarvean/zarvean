@@ -190,7 +190,7 @@ const ProductDetail = () => {
                                 </tr>
                               </thead>
                               <tbody>
-                                {Object.entries(product.sizeChart).map(([size, measurements]) => (
+                                {Object.entries(product.sizeChart).map(([size, measurements]: [string, any]) => (
                                   <tr key={size} className="border-b">
                                     <td className="p-2 font-medium">{size}</td>
                                     <td className="p-2">{measurements.chest}</td>
