@@ -1,4 +1,6 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from '../integrations/supabase/client';
+import { toast } from '../hooks/use-toast';
 
 export const LocalProduct = {};
 
@@ -12,88 +14,180 @@ export const useProducts = () => {
   return context;
 };
 
-const initialProducts = [
-  {
-    id: "1",
-    name: "Royal Silk Shalwar Kameez",
-    price: 2999,
-    images: ["/src/assets/product-bag.jpg", "/src/assets/product-blouse.jpg", "/src/assets/product-boots.jpg"],
-    category: "Formal",
-    description: "Exquisite royal silk shalwar kameez with intricate embroidery. Perfect for weddings and special occasions.",
-    sizes: ["S", "M", "L", "XL", "XXL"],
-    colors: ["Royal Blue", "Gold", "Maroon"],
-    inStock: true,
-    featured: false,
-    isNew: true,
-    reviews: {
-      count: 24,
-      rating: 4.5
-    },
-    sizeChart: {
-      "S": { chest: "38\"", waist: "32\"", length: "44\"", shoulder: "16\"" },
-      "M": { chest: "40\"", waist: "34\"", length: "45\"", shoulder: "17\"" },
-      "L": { chest: "42\"", waist: "36\"", length: "46\"", shoulder: "18\"" },
-      "XL": { chest: "44\"", waist: "38\"", length: "47\"", shoulder: "19\"" },
-      "XXL": { chest: "46\"", waist: "40\"", length: "48\"", shoulder: "20\"" }
-    }
-  }
-];
-
 export const ProductsProvider = ({ children }) => {
-  const [products, setProducts] = useState(() => {
-    const saved = localStorage.getItem('products');
-    if (saved) {
-      return JSON.parse(saved);
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch products from Supabase
+  const fetchProducts = async () => {
+    try {
+      console.log('🔄 ProductsContext: Fetching products from Supabase...');
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) {
+        console.error('❌ ProductsContext: Error fetching products:', error);
+        throw error;
+      }
+      
+      console.log(`✅ ProductsContext: Successfully fetched ${data?.length || 0} products from database`);
+      setProducts(data || []);
+    } catch (error) {
+      console.error('❌ ProductsContext: Failed to fetch products:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load products",
+        variant: "destructive"
+      });
     }
-    localStorage.setItem('products', JSON.stringify(initialProducts));
-    return initialProducts;
-  });
+  };
 
-  const addProduct = (product) => {
-    console.log('🆕 ProductsContext: Adding new product:', product.name);
-    const newProduct = {
-      ...product,
-      id: Date.now().toString()
+  // Fetch categories from Supabase
+  const fetchCategories = async () => {
+    try {
+      console.log('🔄 ProductsContext: Fetching categories from Supabase...');
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .order('name');
+      
+      if (error) {
+        console.error('❌ ProductsContext: Error fetching categories:', error);
+        throw error;
+      }
+      
+      console.log(`✅ ProductsContext: Successfully fetched ${data?.length || 0} categories from database`);
+      setCategories(data || []);
+    } catch (error) {
+      console.error('❌ ProductsContext: Failed to fetch categories:', error);
+    }
+  };
+
+  // Load data on mount
+  useEffect(() => {
+    const loadData = async () => {
+      await Promise.all([fetchProducts(), fetchCategories()]);
+      setLoading(false);
     };
-    setProducts(prev => {
-      const updated = [...prev, newProduct];
-      localStorage.setItem('products', JSON.stringify(updated));
-      console.log('✅ ProductsContext: Product added successfully:', newProduct.name);
-      return updated;
-    });
-    return newProduct;
+    loadData();
+  }, []);
+
+  const addProduct = async (productData) => {
+    try {
+      console.log('🆕 ProductsContext: Adding new product to Supabase:', productData.name);
+      const { data, error } = await supabase
+        .from('products')
+        .insert([productData])
+        .select()
+        .single();
+      
+      if (error) {
+        console.error('❌ ProductsContext: Error adding product:', error);
+        throw error;
+      }
+      
+      console.log('✅ ProductsContext: Product added successfully to database:', data.name);
+      setProducts(prev => [data, ...prev]);
+      
+      toast({
+        title: "Success",
+        description: `Product "${data.name}" added successfully`
+      });
+      
+      return data;
+    } catch (error) {
+      console.error('❌ ProductsContext: Failed to add product:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add product",
+        variant: "destructive"
+      });
+      throw error;
+    }
   };
 
-  const updateProduct = (id, productUpdates) => {
-    console.log('🔄 ProductsContext: Updating product ID:', id, 'with updates:', productUpdates);
-    setProducts(prev => {
-      const updated = prev.map(p => 
-        p.id === id ? { ...p, ...productUpdates } : p
-      );
-      localStorage.setItem('products', JSON.stringify(updated));
-      const updatedProduct = updated.find(p => p.id === id);
-      console.log('✅ ProductsContext: Product updated successfully:', updatedProduct?.name);
-      return updated;
-    });
+  const updateProduct = async (id, productUpdates) => {
+    try {
+      console.log('🔄 ProductsContext: Updating product in Supabase:', id, 'with updates:', productUpdates);
+      const { data, error } = await supabase
+        .from('products')
+        .update(productUpdates)
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) {
+        console.error('❌ ProductsContext: Error updating product:', error);
+        throw error;
+      }
+      
+      console.log('✅ ProductsContext: Product updated successfully in database:', data.name);
+      setProducts(prev => prev.map(p => p.id === id ? data : p));
+      
+      toast({
+        title: "Success",
+        description: `Product "${data.name}" updated successfully`
+      });
+      
+      return data;
+    } catch (error) {
+      console.error('❌ ProductsContext: Failed to update product:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update product",
+        variant: "destructive"
+      });
+      throw error;
+    }
   };
 
-  const deleteProduct = (id) => {
-    const productToDelete = products.find(p => p.id === id);
-    console.log('🗑️ ProductsContext: Deleting product:', productToDelete?.name);
-    setProducts(prev => {
-      const updated = prev.filter(p => p.id !== id);
-      localStorage.setItem('products', JSON.stringify(updated));
-      console.log('✅ ProductsContext: Product deleted successfully:', productToDelete?.name);
-      return updated;
-    });
+  const deleteProduct = async (id) => {
+    try {
+      const productToDelete = products.find(p => p.id === id);
+      console.log('🗑️ ProductsContext: Deleting product from Supabase:', productToDelete?.name);
+      
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', id);
+      
+      if (error) {
+        console.error('❌ ProductsContext: Error deleting product:', error);
+        throw error;
+      }
+      
+      console.log('✅ ProductsContext: Product deleted successfully from database:', productToDelete?.name);
+      setProducts(prev => prev.filter(p => p.id !== id));
+      
+      toast({
+        title: "Success",
+        description: `Product "${productToDelete?.name}" deleted successfully`
+      });
+      
+    } catch (error) {
+      console.error('❌ ProductsContext: Failed to delete product:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete product",
+        variant: "destructive"
+      });
+      throw error;
+    }
   };
 
   return (
     <ProductsContext.Provider value={{
       products,
+      categories,
+      loading,
       addProduct,
       updateProduct,
-      deleteProduct
+      deleteProduct,
+      fetchProducts,
+      fetchCategories
     }}>
       {children}
     </ProductsContext.Provider>

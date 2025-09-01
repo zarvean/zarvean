@@ -56,6 +56,15 @@ const Admin = () => {
   const fetchData = async () => {
     try {
       console.log('🔄 Admin: Fetching products and categories from database...');
+      
+      // Check if user is authenticated and is admin
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session || session.user.email !== 'hehe@me.pk') {
+        console.error('❌ Admin: Unauthorized access attempt');
+        navigate('/auth');
+        return;
+      }
+
       const [productsResponse, categoriesResponse] = await Promise.all([
         supabase.from('products').select('*').order('created_at', { ascending: false }),
         supabase.from('categories').select('*').order('name')
@@ -77,7 +86,7 @@ const Admin = () => {
       console.error('❌ Admin: Error fetching data:', error);
       toast({
         title: "Error",
-        description: "Failed to load data",
+        description: "Failed to load data. Please check your authentication.",
         variant: "destructive"
       });
     } finally {
@@ -125,12 +134,24 @@ const Admin = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    // Check authentication first
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session || session.user.email !== 'hehe@me.pk') {
+      console.error('❌ Admin: Unauthorized access attempt during product save');
+      toast({
+        title: "Error",
+        description: "Unauthorized access. Please login as admin.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     const productData = {
       name: formData.name,
       price: parseFloat(formData.price),
       description: formData.description,
       image_url: formData.image_url,
-      category_id: formData.category_id,
+      category_id: formData.category_id || null,
       stock_quantity: parseInt(formData.stock_quantity),
       is_featured: formData.is_featured,
       colors: formData.colors.split(',').map(c => c.trim()).filter(c => c),
@@ -142,37 +163,41 @@ const Admin = () => {
 
     try {
       if (editingProduct) {
-        console.log('🔄 Admin: Updating product:', editingProduct.name, 'with data:', productData);
-        const { error } = await supabase
+        console.log('🔄 Admin: Updating product in Supabase:', editingProduct.name, 'with data:', productData);
+        const { data, error } = await supabase
           .from('products')
           .update(productData)
-          .eq('id', editingProduct.id);
+          .eq('id', editingProduct.id)
+          .select()
+          .single();
         
         if (error) {
           console.error('❌ Admin: Error updating product:', error);
           throw error;
         }
         
-        console.log('✅ Admin: Product updated successfully:', editingProduct.name);
+        console.log('✅ Admin: Product updated successfully in database:', data.name);
         toast({
           title: "Success",
-          description: `Product "${formData.name}" updated successfully`
+          description: `Product "${data.name}" updated successfully`
         });
       } else {
-        console.log('🔄 Admin: Creating new product:', formData.name, 'with data:', productData);
-        const { error } = await supabase
+        console.log('🔄 Admin: Creating new product in Supabase:', formData.name, 'with data:', productData);
+        const { data, error } = await supabase
           .from('products')
-          .insert([productData]);
+          .insert([productData])
+          .select()
+          .single();
         
         if (error) {
           console.error('❌ Admin: Error creating product:', error);
           throw error;
         }
         
-        console.log('✅ Admin: Product created successfully:', formData.name);
+        console.log('✅ Admin: Product created successfully in database:', data.name);
         toast({
           title: "Success",
-          description: `Product "${formData.name}" created successfully`
+          description: `Product "${data.name}" created successfully`
         });
       }
       
@@ -180,10 +205,10 @@ const Admin = () => {
       resetForm();
       fetchData();
     } catch (error) {
-      console.error('❌ Admin: Error saving product:', error);
+      console.error('❌ Admin: Error saving product to database:', error);
       toast({
         title: "Error",
-        description: "Failed to save product",
+        description: `Failed to save product: ${error.message}`,
         variant: "destructive"
       });
     }
@@ -192,19 +217,31 @@ const Admin = () => {
   const handleDelete = async (productId, productName) => {
     if (!confirm(`Are you sure you want to delete "${productName}"? This action cannot be undone.`)) return;
     
+    // Check authentication first
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session || session.user.email !== 'hehe@me.pk') {
+      console.error('❌ Admin: Unauthorized access attempt during product delete');
+      toast({
+        title: "Error",
+        description: "Unauthorized access. Please login as admin.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     try {
-      console.log('🔄 Admin: Deleting product:', productName, 'ID:', productId);
+      console.log('🔄 Admin: Deleting product from Supabase:', productName, 'ID:', productId);
       const { error } = await supabase
         .from('products')
         .delete()
         .eq('id', productId);
       
       if (error) {
-        console.error('❌ Admin: Error deleting product:', error);
+        console.error('❌ Admin: Error deleting product from database:', error);
         throw error;
       }
       
-      console.log('✅ Admin: Product deleted successfully:', productName);
+      console.log('✅ Admin: Product deleted successfully from database:', productName);
       toast({
         title: "Success",
         description: `Product "${productName}" deleted successfully`
@@ -212,10 +249,10 @@ const Admin = () => {
       
       fetchData();
     } catch (error) {
-      console.error('❌ Admin: Error deleting product:', error);
+      console.error('❌ Admin: Error deleting product from database:', error);
       toast({
         title: "Error",
-        description: "Failed to delete product",
+        description: `Failed to delete product: ${error.message}`,
         variant: "destructive"
       });
     }
