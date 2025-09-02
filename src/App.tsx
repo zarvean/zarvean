@@ -23,7 +23,7 @@ import Account from "./pages/Account";
 import Orders from "./pages/Orders";
 import AdminOrders from "./pages/AdminOrders";
 import Auth from "./pages/Auth";
-import Admin from "./pages/NewAdmin";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
