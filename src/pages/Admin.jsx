@@ -51,9 +51,26 @@ const Admin = () => {
         const { data: { session } } = await supabase.auth.getSession();
         console.log('🔐 Admin: Checking authentication, session:', session?.user?.email);
         
-        if (!session || session.user.email !== 'hehe@me.pk') {
-          console.error('❌ Admin: Unauthorized access. Required: hehe@me.pk, Got:', session?.user?.email);
+        if (!session) {
+          console.error('❌ Admin: No session found');
           navigate('/auth');
+          return;
+        }
+        
+        // Check if user has admin role in database
+        const { data: isAdminResult, error: adminError } = await supabase
+          .rpc('is_admin');
+        
+        console.log('🔐 Admin: Checking admin role, result:', { isAdminResult, adminError });
+        
+        if (adminError || !isAdminResult) {
+          console.error('❌ Admin: User does not have admin privileges:', session.user.email);
+          toast({
+            title: "Access Denied",
+            description: "You don't have admin privileges. Please contact an administrator.",
+            variant: "destructive"
+          });
+          navigate('/');
           return;
         }
         
@@ -65,8 +82,12 @@ const Admin = () => {
       }
     };
     
-    checkAuth();
-  }, [navigate]);
+    if (user) {
+      checkAuth();
+    } else {
+      navigate('/auth');
+    }
+  }, [navigate, user]);
 
   const fetchData = async () => {
     try {
@@ -176,14 +197,29 @@ const Admin = () => {
     
     // Check authentication first
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session || session.user.email !== 'hehe@me.pk') {
-      console.error('❌ Admin: Unauthorized access attempt during product save');
+    if (!session) {
+      console.error('❌ Admin: No session found during product save');
       toast({
         title: "Error",
-        description: "Unauthorized access. Please login as admin.",
+        description: "Please login to continue.",
         variant: "destructive"
       });
       navigate('/auth');
+      return;
+    }
+
+    // Check if user has admin role
+    const { data: isAdminResult, error: adminError } = await supabase
+      .rpc('is_admin');
+    
+    if (adminError || !isAdminResult) {
+      console.error('❌ Admin: User does not have admin privileges during product save:', session.user.email);
+      toast({
+        title: "Error",
+        description: "You don't have admin privileges to perform this action.",
+        variant: "destructive"
+      });
+      navigate('/');
       return;
     }
     
@@ -314,14 +350,29 @@ const Admin = () => {
     
     // Check authentication first
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session || session.user.email !== 'hehe@me.pk') {
-      console.error('❌ Admin: Unauthorized access attempt during product delete');
+    if (!session) {
+      console.error('❌ Admin: No session found during product delete');
       toast({
         title: "Error",
-        description: "Unauthorized access. Please login as admin.",
+        description: "Please login to continue.",
         variant: "destructive"
       });
       navigate('/auth');
+      return;
+    }
+
+    // Check if user has admin role
+    const { data: isAdminResult, error: adminError } = await supabase
+      .rpc('is_admin');
+    
+    if (adminError || !isAdminResult) {
+      console.error('❌ Admin: User does not have admin privileges during product delete:', session.user.email);
+      toast({
+        title: "Error",
+        description: "You don't have admin privileges to perform this action.",
+        variant: "destructive"
+      });
+      navigate('/');
       return;
     }
     
