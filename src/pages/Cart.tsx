@@ -148,8 +148,8 @@ const Cart = () => {
                       <Button 
                         variant="outline" 
                         className="flex-1"
-                        onClick={() => {
-                          const result = validatePromoCode(promoInput, total);
+                        onClick={async () => {
+                          const result = await validatePromoCode(promoInput, total);
                           if (result.valid) {
                             applyDiscount(result.discount, promoInput);
                             setPromoInput('');

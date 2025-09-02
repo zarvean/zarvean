@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from './AuthContext';
 
 export interface PromoCode {
   id: string;
@@ -12,10 +14,11 @@ export interface PromoCode {
 
 interface PromoCodesContextType {
   promoCodes: PromoCode[];
-  addPromoCode: (promoCode: Omit<PromoCode, 'id'>) => void;
-  updatePromoCode: (id: string, promoCode: Partial<PromoCode>) => void;
-  deletePromoCode: (id: string) => void;
-  validatePromoCode: (code: string, orderAmount: number) => { valid: boolean; discount: number; message: string };
+  addPromoCode: (promoCode: Omit<PromoCode, 'id'>) => Promise<void>;
+  updatePromoCode: (id: string, promoCode: Partial<PromoCode>) => Promise<void>;
+  deletePromoCode: (id: string) => Promise<void>;
+  validatePromoCode: (code: string, orderAmount: number) => Promise<{ valid: boolean; discount: number; message: string }>;
+  fetchPromoCodes: () => Promise<void>;
 }
 
 const PromoCodesContext = createContext<PromoCodesContextType | undefined>(undefined);
@@ -28,90 +31,143 @@ export const usePromoCodes = () => {
   return context;
 };
 
-const initialPromoCodes: PromoCode[] = [
-  {
-    id: "1",
-    code: "WELCOME10",
-    discount: 10,
-    isActive: true,
-    description: "10% off for new customers",
-    minOrderAmount: 1000
-  },
-  {
-    id: "2", 
-    code: "SAVE20",
-    discount: 20,
-    isActive: true,
-    description: "20% off on orders above RS 3000",
-    minOrderAmount: 3000
-  }
-];
-
 export const PromoCodesProvider = ({ children }: { children: ReactNode }) => {
-  const [promoCodes, setPromoCodes] = useState<PromoCode[]>(() => {
-    const saved = localStorage.getItem('promoCodes');
-    if (saved) {
-      return JSON.parse(saved);
-    }
-    localStorage.setItem('promoCodes', JSON.stringify(initialPromoCodes));
-    return initialPromoCodes;
-  });
+  const [promoCodes, setPromoCodes] = useState<PromoCode[]>([]);
+  const { user } = useAuth();
 
-  const addPromoCode = (promoCode: Omit<PromoCode, 'id'>) => {
-    const newPromoCode = {
-      ...promoCode,
-      id: Date.now().toString()
-    };
-    setPromoCodes(prev => {
-      const updated = [...prev, newPromoCode];
-      localStorage.setItem('promoCodes', JSON.stringify(updated));
-      return updated;
-    });
+  const fetchPromoCodes = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('promo_codes')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching promo codes:', error);
+        return;
+      }
+
+      const mappedPromoCodes = data?.map(code => ({
+        id: code.id,
+        code: code.code,
+        discount: Number(code.discount_value),
+        isActive: code.is_active,
+        description: code.description || '',
+        minOrderAmount: code.minimum_order_amount ? Number(code.minimum_order_amount) : undefined,
+        expiryDate: code.expires_at || undefined
+      })) || [];
+
+      setPromoCodes(mappedPromoCodes);
+    } catch (error) {
+      console.error('Error fetching promo codes:', error);
+    }
   };
 
-  const updatePromoCode = (id: string, promoCodeUpdates: Partial<PromoCode>) => {
-    setPromoCodes(prev => {
-      const updated = prev.map(p => 
-        p.id === id ? { ...p, ...promoCodeUpdates } : p
-      );
-      localStorage.setItem('promoCodes', JSON.stringify(updated));
-      return updated;
-    });
+  useEffect(() => {
+    if (user) {
+      fetchPromoCodes();
+    }
+  }, [user]);
+
+  const addPromoCode = async (promoCode: Omit<PromoCode, 'id'>) => {
+    try {
+      const { error } = await supabase
+        .from('promo_codes')
+        .insert({
+          code: promoCode.code,
+          discount_type: 'percentage',
+          discount_value: promoCode.discount,
+          is_active: promoCode.isActive,
+          description: promoCode.description,
+          minimum_order_amount: promoCode.minOrderAmount,
+          expires_at: promoCode.expiryDate
+        });
+
+      if (error) {
+        console.error('Error adding promo code:', error);
+        throw error;
+      }
+
+      await fetchPromoCodes();
+    } catch (error) {
+      console.error('Error adding promo code:', error);
+      throw error;
+    }
   };
 
-  const deletePromoCode = (id: string) => {
-    setPromoCodes(prev => {
-      const updated = prev.filter(p => p.id !== id);
-      localStorage.setItem('promoCodes', JSON.stringify(updated));
-      return updated;
-    });
+  const updatePromoCode = async (id: string, promoCodeUpdates: Partial<PromoCode>) => {
+    try {
+      const updateData: any = {};
+      if (promoCodeUpdates.code) updateData.code = promoCodeUpdates.code;
+      if (promoCodeUpdates.discount !== undefined) updateData.discount_value = promoCodeUpdates.discount;
+      if (promoCodeUpdates.isActive !== undefined) updateData.is_active = promoCodeUpdates.isActive;
+      if (promoCodeUpdates.description !== undefined) updateData.description = promoCodeUpdates.description;
+      if (promoCodeUpdates.minOrderAmount !== undefined) updateData.minimum_order_amount = promoCodeUpdates.minOrderAmount;
+      if (promoCodeUpdates.expiryDate !== undefined) updateData.expires_at = promoCodeUpdates.expiryDate;
+
+      const { error } = await supabase
+        .from('promo_codes')
+        .update(updateData)
+        .eq('id', id);
+
+      if (error) {
+        console.error('Error updating promo code:', error);
+        throw error;
+      }
+
+      await fetchPromoCodes();
+    } catch (error) {
+      console.error('Error updating promo code:', error);
+      throw error;
+    }
   };
 
-  const validatePromoCode = (code: string, orderAmount: number) => {
-    const promoCode = promoCodes.find(p => p.code.toLowerCase() === code.toLowerCase() && p.isActive);
-    
-    if (!promoCode) {
-      return { valid: false, discount: 0, message: "Invalid promo code" };
-    }
+  const deletePromoCode = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('promo_codes')
+        .delete()
+        .eq('id', id);
 
-    if (promoCode.expiryDate && new Date(promoCode.expiryDate) < new Date()) {
-      return { valid: false, discount: 0, message: "Promo code has expired" };
-    }
+      if (error) {
+        console.error('Error deleting promo code:', error);
+        throw error;
+      }
 
-    if (promoCode.minOrderAmount && orderAmount < promoCode.minOrderAmount) {
-      return { 
-        valid: false, 
-        discount: 0, 
-        message: `Minimum order amount is RS ${promoCode.minOrderAmount}` 
+      await fetchPromoCodes();
+    } catch (error) {
+      console.error('Error deleting promo code:', error);
+      throw error;
+    }
+  };
+
+  const validatePromoCode = async (code: string, orderAmount: number) => {
+    try {
+      const { data, error } = await supabase
+        .rpc('validate_promo_code_public', {
+          code_text: code,
+          order_amount: orderAmount
+        });
+
+      if (error) {
+        console.error('Error validating promo code:', error);
+        return { valid: false, discount: 0, message: "Error validating promo code" };
+      }
+
+      const result = data?.[0];
+      if (!result) {
+        return { valid: false, discount: 0, message: "Invalid promo code" };
+      }
+
+      return {
+        valid: result.is_valid,
+        discount: Number(result.discount_amount || 0),
+        message: result.message || "Promo code applied!"
       };
+    } catch (error) {
+      console.error('Error validating promo code:', error);
+      return { valid: false, discount: 0, message: "Error validating promo code" };
     }
-
-    const discountAmount = Math.round((orderAmount * promoCode.discount) / 100);
-    return { 
-      valid: true, 
-      discount: discountAmount, 
-      message: `${promoCode.discount}% discount applied!` 
-    };
   };
 
   return (
@@ -120,7 +176,8 @@ export const PromoCodesProvider = ({ children }: { children: ReactNode }) => {
       addPromoCode,
       updatePromoCode,
       deletePromoCode,
-      validatePromoCode
+      validatePromoCode,
+      fetchPromoCodes
     }}>
       {children}
     </PromoCodesContext.Provider>

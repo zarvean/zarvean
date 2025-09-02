@@ -501,6 +501,14 @@ export type Database = {
           is_valid: boolean
         }[]
       }
+      validate_promo_code_public: {
+        Args: { code_text: string; order_amount?: number }
+        Returns: {
+          discount_amount: number
+          is_valid: boolean
+          message: string
+        }[]
+      }
     }
     Enums: {
       app_role: "admin" | "customer"

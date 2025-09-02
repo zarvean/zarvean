@@ -10,6 +10,7 @@ import { WishlistProvider } from "@/contexts/WishlistContext";
 import { ProductsProvider } from "@/contexts/ProductsContext";
 import { OrdersProvider } from "@/contexts/OrdersContext";
 import { AdminProvider } from "@/contexts/AdminContext";
+import { PromoCodesProvider } from "@/contexts/PromoCodesContext";
 import ScrollToTop from "@/components/ScrollToTop";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import Index from "./pages/Index";
@@ -36,7 +37,8 @@ function App() {
             <ProductsProvider>
               <OrdersProvider>
                 <WishlistProvider>
-                  <CartProvider>
+                  <PromoCodesProvider>
+                    <CartProvider>
                   <Toaster />
                   <Sonner />
                   <ScrollToTop />
@@ -56,7 +58,8 @@ function App() {
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
                   </Routes>
-                  </CartProvider>
+                    </CartProvider>
+                  </PromoCodesProvider>
                 </WishlistProvider>
               </OrdersProvider>
             </ProductsProvider>
