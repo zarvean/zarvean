@@ -44,47 +44,13 @@ const Admin = () => {
     tags: ''
   });
 
-  // Check admin access and get session
+  // Check admin access using AuthContext
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        console.log('🔐 Admin: Checking authentication, session:', session?.user?.email);
-        
-        if (!session) {
-          console.error('❌ Admin: No session found');
-          navigate('/auth');
-          return;
-        }
-        
-        // Check if user has admin role in database
-        const { data: isAdminResult, error: adminError } = await supabase
-          .rpc('is_admin');
-        
-        console.log('🔐 Admin: Checking admin role, result:', { isAdminResult, adminError });
-        
-        if (adminError || !isAdminResult) {
-          console.error('❌ Admin: User does not have admin privileges:', session.user.email);
-          toast({
-            title: "Access Denied",
-            description: "You don't have admin privileges. Please contact an administrator.",
-            variant: "destructive"
-          });
-          navigate('/');
-          return;
-        }
-        
-        console.log('✅ Admin: Authentication successful for:', session.user.email);
-        fetchData();
-      } catch (error) {
-        console.error('❌ Admin: Auth check failed:', error);
-        navigate('/auth');
-      }
-    };
-    
     if (user) {
-      checkAuth();
+      console.log('✅ Admin: User authenticated, fetching data...');
+      fetchData();
     } else {
+      console.log('❌ Admin: No user found, redirecting to auth');
       navigate('/auth');
     }
   }, [navigate, user]);
