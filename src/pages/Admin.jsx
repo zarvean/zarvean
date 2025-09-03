@@ -99,6 +99,7 @@ const Admin = () => {
         console.error('❌ Admin: No valid session found');
         navigate('/auth');
         return;
+      }
       
       console.log('🔄 Admin: Making database queries...');
 
