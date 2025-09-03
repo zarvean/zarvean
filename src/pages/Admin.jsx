@@ -296,35 +296,7 @@ const Admin = () => {
     
     console.log('🔄 Admin: Delete operation initiated for:', productName, 'ID:', productId);
     
-    // Check authentication first
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      console.error('❌ Admin: No session found during product delete');
-      toast({
-        title: "Error",
-        description: "Please login to continue.",
-        variant: "destructive"
-      });
-      navigate('/auth');
-      return;
-    }
-
-    // Check if user has admin role
-    const { data: isAdminResult, error: adminError } = await supabase
-      .rpc('is_admin');
-    
-    if (adminError || !isAdminResult) {
-      console.error('❌ Admin: User does not have admin privileges during product delete:', session.user.email);
-      toast({
-        title: "Error",
-        description: "You don't have admin privileges to perform this action.",
-        variant: "destructive"
-      });
-      navigate('/');
-      return;
-    }
-    
-    console.log('✅ Admin: Authentication verified for delete operation:', session.user.email);
+    console.log('✅ Admin: Deleting product with local auth...');
     
     try {
       console.log('🔄 Admin: Deleting product from Supabase database...');
