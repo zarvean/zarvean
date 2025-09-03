@@ -103,17 +103,9 @@ const Admin = () => {
 
       if (productsResponse.error) {
         console.error('❌ Admin: Error fetching products:', productsResponse.error);
-        if (productsResponse.error.message.includes('JWT')) {
-          navigate('/auth');
-          return;
-        }
       }
       if (categoriesResponse.error) {
         console.error('❌ Admin: Error fetching categories:', categoriesResponse.error);
-        if (categoriesResponse.error.message.includes('JWT')) {
-          navigate('/auth');
-          return;
-        }
       }
 
       console.log(`✅ Admin: Successfully fetched ${productsResponse.data?.length || 0} products and ${categoriesResponse.data?.length || 0} categories`);
