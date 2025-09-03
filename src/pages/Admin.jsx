@@ -99,9 +99,8 @@ const Admin = () => {
         console.error('❌ Admin: No valid session found');
         navigate('/auth');
         return;
-      }
-
-      console.log('🔄 Admin: Making database queries with session:', session.user.email);
+      
+      console.log('🔄 Admin: Making database queries...');
 
       const [productsResponse, categoriesResponse] = await Promise.all([
         supabase.from('products').select('*').order('created_at', { ascending: false }),

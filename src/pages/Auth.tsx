@@ -32,8 +32,8 @@ const Auth = () => {
     setIsLoading(true)
     try {
       await signIn(data.email, data.password)
-      console.log('Login successful, navigating to orders page');
-      navigate('/orders')
+      console.log('Login successful, navigating to admin panel');
+      navigate('/admin')
     } catch (error) {
       console.error('Login error:', error)
     } finally {
