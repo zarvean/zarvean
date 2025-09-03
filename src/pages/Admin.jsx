@@ -92,16 +92,6 @@ const Admin = () => {
   const fetchData = async () => {
     try {
       console.log('🔄 Admin: Fetching products and categories from database...');
-      
-      // Verify session is still valid
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        console.error('❌ Admin: No valid session found');
-        navigate('/auth');
-        return;
-      }
-      
-      console.log('🔄 Admin: Making database queries...');
 
       const [productsResponse, categoriesResponse] = await Promise.all([
         supabase.from('products').select('*').order('created_at', { ascending: false }),
