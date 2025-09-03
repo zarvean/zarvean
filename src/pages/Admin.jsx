@@ -663,9 +663,9 @@ const Admin = () => {
                       <div className="space-y-2">
                         <div className="flex items-center gap-2">
                           <p className="font-semibold">PKR {product.price}</p>
-                          {(product as any).sale_percentage && (
+                          {product.sale_percentage && (
                             <Badge variant="secondary" className="bg-red-100 text-red-700">
-                              {(product as any).sale_percentage}% OFF
+                              {product.sale_percentage}% OFF
                             </Badge>
                           )}
                         </div>
