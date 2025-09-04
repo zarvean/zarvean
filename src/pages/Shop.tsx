@@ -18,8 +18,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 
 const Shop = () => {
   const { user } = useAuth()
-  const { products } = useProducts()
-  const { categories: adminCategories, sections, getProductSections } = useAdmin()
+  const { products, categories } = useProducts()
+  const { sections, getProductSections } = useAdmin()
   const [searchParams, setSearchParams] = useSearchParams()
   const [selectedCategory, setSelectedCategory] = useState("All")
   const [searchQuery, setSearchQuery] = useState("")
@@ -30,8 +30,8 @@ const Shop = () => {
 
   const isAdmin = user?.email === 'hehe@me.pk'
   
-  // Use admin categories only
-  const availableCategories = adminCategories
+  // Use ProductsContext categories
+  const availableCategories = categories
   const activeSections = sections.filter(section => section.isActive)
 
   // Initialize state from URL parameters
@@ -87,9 +87,9 @@ const Shop = () => {
       const matchesCategory = selectedCategory === "All" || product.category === selectedCategory
       const matchesSearch = searchQuery.trim() === "" || 
                            product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                           product.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                           (product.description && product.description.toLowerCase().includes(searchQuery.toLowerCase())) ||
                            product.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                           product.colors.some(color => color.toLowerCase().includes(searchQuery.toLowerCase()))
+                           (product.colors && Array.isArray(product.colors) && product.colors.some(color => color.toLowerCase().includes(searchQuery.toLowerCase())))
       return matchesCategory && matchesSearch
     })
     .sort((a, b) => {
@@ -220,10 +220,10 @@ const Shop = () => {
             const sectionProducts = products.filter(product => {
               const matchesCategory = selectedCategory === "All" || product.category === selectedCategory
               const matchesSearch = searchQuery.trim() === "" || 
-                                   product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                   product.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                   product.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                   product.colors.some(color => color.toLowerCase().includes(searchQuery.toLowerCase()))
+                               product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                               (product.description && product.description.toLowerCase().includes(searchQuery.toLowerCase())) ||
+                               product.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                               (product.colors && Array.isArray(product.colors) && product.colors.some(color => color.toLowerCase().includes(searchQuery.toLowerCase())))
               
               // Check if product is assigned to this specific section
               const assignedSections = getProductSections(product.id)

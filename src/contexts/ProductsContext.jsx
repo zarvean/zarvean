@@ -2,7 +2,23 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '../integrations/supabase/client';
 import { toast } from '../hooks/use-toast';
 
-export const LocalProduct = {};
+export const LocalProduct = {
+  id: 'string',
+  name: 'string',
+  price: 'number',
+  originalPrice: 'number',
+  images: 'string[]',
+  category: 'string',
+  description: 'string',
+  sizes: 'string[]',
+  colors: 'string[]',
+  inStock: 'boolean',
+  isNew: 'boolean',
+  isSale: 'boolean',
+  stock_quantity: 'number',
+  is_featured: 'boolean',
+  tags: 'string[]'
+};
 
 const ProductsContext = createContext();
 
@@ -25,7 +41,10 @@ export const ProductsProvider = ({ children }) => {
       console.log('🔄 ProductsContext: Fetching products from Supabase...');
       const { data, error } = await supabase
         .from('products')
-        .select('*')
+        .select(`
+          *,
+          categories (name)
+        `)
         .order('created_at', { ascending: false });
       
       if (error) {
@@ -34,7 +53,29 @@ export const ProductsProvider = ({ children }) => {
       }
       
       console.log(`✅ ProductsContext: Successfully fetched ${data?.length || 0} products from database`);
-      setProducts(data || []);
+      
+      // Transform Supabase data to match expected product structure
+      const transformedProducts = (data || []).map(product => ({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        originalPrice: product.sale_percentage 
+          ? Math.round(product.price / (1 - product.sale_percentage / 100))
+          : null,
+        images: product.image_url ? [product.image_url] : [],
+        category: product.categories?.name || 'Uncategorized',
+        description: product.description || '',
+        sizes: Array.isArray(product.sizes) ? product.sizes : [],
+        colors: Array.isArray(product.colors) ? product.colors : [],
+        inStock: product.in_stock,
+        isNew: false, // You can add logic for this later
+        isSale: product.sale_percentage > 0,
+        stock_quantity: product.stock_quantity,
+        is_featured: product.is_featured,
+        tags: Array.isArray(product.tags) ? product.tags : []
+      }));
+      
+      setProducts(transformedProducts);
     } catch (error) {
       console.error('❌ ProductsContext: Failed to fetch products:', error);
       toast({
@@ -60,9 +101,13 @@ export const ProductsProvider = ({ children }) => {
       }
       
       console.log(`✅ ProductsContext: Successfully fetched ${data?.length || 0} categories from database`);
-      setCategories(data || []);
+      
+      // Transform categories to include "All" and extract names
+      const categoryNames = (data || []).map(cat => cat.name);
+      setCategories(['All', ...categoryNames]);
     } catch (error) {
       console.error('❌ ProductsContext: Failed to fetch categories:', error);
+      setCategories(['All']); // Fallback to just "All"
     }
   };
 
