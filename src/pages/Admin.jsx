@@ -143,35 +143,7 @@ const Admin = () => {
       return;
     }
     
-    // Check authentication first
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      console.error('❌ Admin: No session found during product save');
-      toast({
-        title: "Error",
-        description: "Please login to continue.",
-        variant: "destructive"
-      });
-      navigate('/auth');
-      return;
-    }
-
-    // Check if user has admin role
-    const { data: isAdminResult, error: adminError } = await supabase
-      .rpc('is_admin');
-    
-    if (adminError || !isAdminResult) {
-      console.error('❌ Admin: User does not have admin privileges during product save:', session.user.email);
-      toast({
-        title: "Error",
-        description: "You don't have admin privileges to perform this action.",
-        variant: "destructive"
-      });
-      navigate('/');
-      return;
-    }
-    
-    console.log('✅ Admin: Authentication verified for:', session.user.email);
+    console.log('✅ Admin: Saving product with local auth...');
     
     const productData = {
       name: formData.name.trim(),
