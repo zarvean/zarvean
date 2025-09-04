@@ -50,68 +50,123 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className, style }) 
   }
 
   return (
-    <div className={cn("product-card group relative bg-white dark:bg-card rounded-lg", className)} style={style}>
+    <div className={cn("group relative", className)} style={style}>
       <Link to={`/product/${product.id}`}>
-        <div className="product-image rounded-lg relative overflow-hidden shadow-sm group-hover:shadow-xl transition-all duration-500 group-hover:-translate-y-2">
-          <img
-            src={product.images[0]}
-            alt={product.name}
-            className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:brightness-110"
-          />
+        {/* Bootstrap-inspired Card */}
+        <div className="bg-card border border-border rounded-xl shadow-md hover:shadow-2xl transition-all duration-500 overflow-hidden group-hover:-translate-y-1 hover:border-primary/20">
           
-          {/* Enhanced Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
-          
-          {/* Badges */}
-          <div className="absolute top-3 left-3 flex flex-col gap-2">
-            {/* 40% OFF Badge - Always visible */}
-            <div className="relative">
-              <Badge className="bg-gradient-to-r from-red-600 to-red-500 text-white shadow-md border-0 px-3 py-1 font-bold text-sm">
-                40% OFF
+          {/* Image Container */}
+          <div className="relative overflow-hidden aspect-[4/5] bg-muted">
+            <img
+              src={product.images[0] || '/placeholder-product.jpg'}
+              alt={product.name}
+              className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105"
+            />
+            
+            {/* Gradient Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            
+            {/* Badges */}
+            <div className="absolute top-3 left-3 z-10 space-y-2">
+              {product.isSale && (
+                <Badge className="bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg border-0 font-semibold text-xs px-2.5 py-1">
+                  {product.originalPrice ? `${Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF` : 'SALE'}
+                </Badge>
+              )}
+              {product.isNew && (
+                <Badge className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg border-0 font-semibold text-xs px-2.5 py-1">
+                  NEW
+                </Badge>
+              )}
+            </div>
+
+            {/* Wishlist Button */}
+            <div className="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+              <Button 
+                size="icon" 
+                variant="secondary" 
+                className={cn(
+                  "w-9 h-9 rounded-full shadow-lg bg-white/90 hover:bg-white border-0 backdrop-blur-sm transition-all duration-300",
+                  inWishlist && "text-red-500 bg-red-50/90 hover:bg-red-50"
+                )}
+                onClick={handleWishlistToggle}
+              >
+                <Heart className={cn("h-4 w-4 transition-all duration-300", inWishlist && "fill-current scale-110")} />
+              </Button>
+            </div>
+
+            {/* Quick Actions Overlay */}
+            <div className="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-500">
+              <Button 
+                onClick={handleAddToCart}
+                className="w-full bg-white/95 text-foreground hover:bg-white hover:text-primary border border-border/50 backdrop-blur-sm font-semibold transition-all duration-300 shadow-lg"
+                size="sm"
+              >
+                <ShoppingBag className="h-4 w-4 mr-2" />
+                Add to Cart
+              </Button>
+            </div>
+          </div>
+
+          {/* Card Body */}
+          <div className="p-4 space-y-3">
+            {/* Category */}
+            <div className="flex items-center justify-between">
+              <Badge variant="outline" className="text-xs font-medium text-muted-foreground border-muted-foreground/30">
+                {product.category}
+              </Badge>
+              <Badge variant="outline" className="text-xs font-medium text-emerald-600 border-emerald-200 bg-emerald-50/50">
+                <Truck className="h-3 w-3 mr-1" />
+                Free Shipping
               </Badge>
             </div>
             
-            {product.isNew && (
-              <Badge className="bg-primary text-primary-foreground shadow-md">NEW</Badge>
-            )}
-            {product.isSale && (
-              <Badge variant="destructive" className="shadow-md">SALE</Badge>
-            )}
-            <Badge variant="secondary" className="bg-white/95 text-emerald-700 border-emerald-200 shadow-md">
-              <Truck className="h-3 w-3 mr-1" />
-              Free Delivery
-            </Badge>
-          </div>
+            {/* Product Name */}
+            <h3 className="font-serif text-lg font-semibold text-foreground leading-tight group-hover:text-primary transition-colors duration-300 line-clamp-2">
+              {product.name}
+            </h3>
+            
+            {/* Price */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="font-serif text-xl font-bold text-foreground group-hover:text-primary transition-colors duration-300">
+                  Rs. {product.price.toLocaleString()}
+                </span>
+                {product.originalPrice && (
+                  <span className="text-sm text-muted-foreground line-through">
+                    Rs. {product.originalPrice.toLocaleString()}
+                  </span>
+                )}
+              </div>
+              {product.inStock ? (
+                <Badge variant="secondary" className="bg-emerald-50 text-emerald-700 border-emerald-200 text-xs">
+                  In Stock
+                </Badge>
+              ) : (
+                <Badge variant="destructive" className="text-xs">
+                  Out of Stock
+                </Badge>
+              )}
+            </div>
 
-          {/* Professional Quick Actions */}
-          <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300">
-            <Button 
-              size="icon" 
-              variant="secondary" 
-              className={cn("rounded-full shadow-md bg-white/90 hover:bg-white border-0 backdrop-blur-sm", inWishlist && "text-red-500 bg-red-50")}
-              onClick={handleWishlistToggle}
-            >
-              <Heart className={cn("h-4 w-4", inWishlist && "fill-current")} />
-            </Button>
-          </div>
-
-        </div>
-
-        <div className="pt-4 space-y-3 group-hover:translate-y-0 transition-transform duration-300">
-          <p className="text-xs uppercase tracking-wider text-muted-foreground group-hover:text-primary transition-colors duration-300 font-medium">
-            {product.category}
-          </p>
-          <h3 className="font-medium text-foreground group-hover:text-primary transition-colors duration-300 font-serif text-lg leading-tight">
-            {product.name}
-          </h3>
-          <div className="flex items-center gap-2">
-            <p className="font-serif text-xl font-semibold group-hover:text-primary transition-colors duration-300">
-              RS {product.price}
-            </p>
-            {product.originalPrice && (
-              <p className="text-sm text-muted-foreground line-through opacity-60">
-                RS {product.originalPrice}
-              </p>
+            {/* Colors Preview */}
+            {product.colors && product.colors.length > 0 && (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">Colors:</span>
+                <div className="flex gap-1">
+                  {product.colors.slice(0, 3).map((color, index) => (
+                    <div 
+                      key={index}
+                      className="w-4 h-4 rounded-full border border-border shadow-sm"
+                      style={{ backgroundColor: color.toLowerCase() === 'white' ? '#ffffff' : color.toLowerCase() === 'black' ? '#000000' : color.toLowerCase() }}
+                      title={color}
+                    />
+                  ))}
+                  {product.colors.length > 3 && (
+                    <span className="text-xs text-muted-foreground">+{product.colors.length - 3}</span>
+                  )}
+                </div>
+              </div>
             )}
           </div>
         </div>
