@@ -30,15 +30,13 @@ const Hero = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-6 justify-center">
             <Link to="/shop" className="group">
-              <Button className="btn-hero-animated bg-white text-black hover:bg-primary hover:text-white transform hover:scale-105 hover:shadow-lg transition-all duration-700 relative overflow-hidden">
-                <span className="relative z-10">Shop Now</span>
-                <div className="absolute inset-0 bg-gradient-to-r from-primary to-accent transform scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left"></div>
+              <Button className="bg-white text-black hover:bg-black hover:text-white transform hover:scale-105 hover:shadow-lg transition-all duration-300 border border-white">
+                Shop Now
               </Button>
             </Link>
             <Link to="/shop?category=Formal" className="group">
-              <Button variant="outline" className="btn-collection-animated border-2 border-white text-white bg-transparent hover:bg-white hover:text-primary transform hover:scale-105 hover:shadow-lg transition-all duration-700 relative overflow-hidden">
-                <span className="relative z-10">View Collection</span>
-                <div className="absolute inset-0 bg-white transform scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-right"></div>
+              <Button variant="outline" className="border-2 border-white text-white bg-transparent hover:bg-white hover:text-black transform hover:scale-105 hover:shadow-lg transition-all duration-300">
+                View Collection
               </Button>
             </Link>
           </div>

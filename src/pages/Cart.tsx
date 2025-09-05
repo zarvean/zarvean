@@ -32,7 +32,7 @@ const Cart = () => {
               Discover our beautiful collection and find pieces that speak to you.
             </p>
             <Link to="/shop">
-              <Button className="btn-hero">Continue Shopping</Button>
+              <Button className="w-full">Continue Shopping</Button>
             </Link>
           </div>
         </div>
@@ -199,7 +199,7 @@ const Cart = () => {
 
               <div className="space-y-3">
                 <Link to="/checkout">
-                  <Button className="btn-hero w-full">Proceed to Checkout</Button>
+                  <Button className="w-full">Proceed to Checkout</Button>
                 </Link>
                 <Link to="/shop">
                   <Button variant="outline" className="w-full">Continue Shopping</Button>

@@ -1,4 +1,4 @@
-import { Instagram, Facebook, Twitter } from "lucide-react";
+import { Instagram, Facebook, MessageCircle } from "lucide-react";
 
 const Footer = () => {
   return (
@@ -15,14 +15,14 @@ const Footer = () => {
               Each item is thoughtfully designed to enhance your wardrobe.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+              <a href="https://www.instagram.com/zarveancom" target="_blank" rel="noopener noreferrer" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
                 <Instagram className="h-5 w-5" />
               </a>
-              <a href="#" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+              <a href="https://www.facebook.com/profile.php?id=61577800661630" target="_blank" rel="noopener noreferrer" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
                 <Facebook className="h-5 w-5" />
               </a>
-              <a href="#" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
-                <Twitter className="h-5 w-5" />
+              <a href="https://wa.me/923298892016" target="_blank" rel="noopener noreferrer" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+                <MessageCircle className="h-5 w-5" />
               </a>
             </div>
           </div>

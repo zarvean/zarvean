@@ -95,27 +95,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className, style }) 
               </Button>
             </div>
 
-            {/* Quick Actions Overlay */}
-            <div className="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-500">
-              <Button 
-                onClick={handleAddToCart}
-                className="w-full bg-white/95 text-foreground hover:bg-white hover:text-primary border border-border/50 backdrop-blur-sm font-semibold transition-all duration-300 shadow-lg"
-                size="sm"
-              >
-                <ShoppingBag className="h-4 w-4 mr-2" />
-                Add to Cart
-              </Button>
-            </div>
-          </div>
-
           {/* Card Body */}
           <div className="p-4 space-y-3">
-            {/* Category */}
-            <div className="flex items-center justify-between">
-              <Badge variant="outline" className="text-xs font-medium text-muted-foreground border-muted-foreground/30">
+            {/* Category and Free Shipping - Mobile responsive */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <Badge variant="outline" className="text-xs font-medium text-muted-foreground border-muted-foreground/30 w-fit">
                 {product.category}
               </Badge>
-              <Badge variant="outline" className="text-xs font-medium text-emerald-600 border-emerald-200 bg-emerald-50/50">
+              <Badge variant="outline" className="text-xs font-medium text-emerald-600 border-emerald-200 bg-emerald-50/50 w-fit">
                 <Truck className="h-3 w-3 mr-1" />
                 Free Shipping
               </Badge>

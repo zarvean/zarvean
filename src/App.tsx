@@ -24,6 +24,7 @@ import Orders from "./pages/Orders";
 import AdminOrders from "./pages/AdminOrders";
 import Auth from "./pages/Auth";
 import Admin from "./pages/Admin";
+import SizeGuide from "./pages/SizeGuide";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -54,6 +55,7 @@ function App() {
                     <Route path="/orders" element={<Orders />} />
                     <Route path="/admin/orders" element={<AdminOrders />} />
                     <Route path="/auth" element={<Auth />} />
+                    <Route path="/size-guide" element={<SizeGuide />} />
                     <Route path="/admin" element={<Admin />} />
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />

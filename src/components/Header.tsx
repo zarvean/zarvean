@@ -1,5 +1,5 @@
 
-import { ShoppingBag, Menu, User, LogOut, Settings, Home, Store, History, Instagram, Facebook, Twitter } from "lucide-react";
+import { ShoppingBag, Menu, User, LogOut, Settings, Home, Store, History, Instagram, Facebook, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -54,24 +54,24 @@ const Header = () => {
               </SheetTrigger>
               <SheetContent side="left" className="w-[280px] sm:w-[350px]">
                 <nav className="flex flex-col space-y-4 mt-8">
-                  <Link to="/" className="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors duration-200">
+                  <Link to="/" className="flex items-center space-x-3 px-3 py-2 hover:bg-black/10 transition-colors duration-200">
                     <Home className="h-5 w-5" />
                     <span>Home</span>
                   </Link>
-                  <Link to="/shop" className="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors duration-200">
+                  <Link to="/shop" className="flex items-center space-x-3 px-3 py-2 hover:bg-black/10 transition-colors duration-200">
                     <Store className="h-5 w-5" />
                     <span>Shop</span>
                   </Link>
-                  <Link to="/cart" className="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors duration-200">
+                  <Link to="/cart" className="flex items-center space-x-3 px-3 py-2 hover:bg-black/10 transition-colors duration-200">
                     <ShoppingBag className="h-5 w-5" />
                     <span>Cart</span>
                     {itemCount > 0 && (
-                      <span className="ml-auto bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      <span className="ml-auto bg-black text-white text-xs h-5 w-5 flex items-center justify-center">
                         {itemCount}
                       </span>
                     )}
                   </Link>
-                  <Link to="/orders" className="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors duration-200">
+                  <Link to="/orders" className="flex items-center space-x-3 px-3 py-2 hover:bg-black/10 transition-colors duration-200">
                     <History className="h-5 w-5" />
                     <span>Order History</span>
                   </Link>
@@ -82,28 +82,28 @@ const Header = () => {
                   <h3 className="text-sm font-semibold text-muted-foreground mb-3">Follow Us</h3>
                   <div className="flex space-x-4">
                     <a
-                      href="https://instagram.com"
+                      href="https://www.instagram.com/zarveancom"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="p-2 rounded-lg hover:bg-muted transition-colors duration-200"
+                      className="p-2 hover:bg-black/10 transition-colors duration-200"
                     >
                       <Instagram className="h-5 w-5" />
                     </a>
                     <a
-                      href="https://facebook.com"
+                      href="https://www.facebook.com/profile.php?id=61577800661630"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="p-2 rounded-lg hover:bg-muted transition-colors duration-200"
+                      className="p-2 hover:bg-black/10 transition-colors duration-200"
                     >
                       <Facebook className="h-5 w-5" />
                     </a>
                     <a
-                      href="https://twitter.com"
+                      href="https://wa.me/923298892016"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="p-2 rounded-lg hover:bg-muted transition-colors duration-200"
+                      className="p-2 hover:bg-black/10 transition-colors duration-200"
                     >
-                      <Twitter className="h-5 w-5" />
+                      <MessageCircle className="h-5 w-5" />
                     </a>
                   </div>
                 </div>

@@ -50,7 +50,7 @@ const Auth = () => {
             <Link to="/">
               <h1 className="text-2xl font-serif font-semibold mb-4">ZARVEAN</h1>
             </Link>
-            <p className="text-muted-foreground">Welcome to your account</p>
+            <p className="text-muted-foreground">Welcome to the Admin Panel</p>
           </div>
 
           <Tabs defaultValue="login" className="space-y-6">
@@ -93,10 +93,6 @@ const Auth = () => {
                 <Button type="submit" className="btn-hero w-full" disabled={isLoading}>
                   {isLoading ? 'Signing In...' : 'Sign In'}
                 </Button>
-
-                <div className="text-center">
-                  <Button variant="link" size="sm">Forgot your password?</Button>
-                </div>
               </form>
             </TabsContent>
           </Tabs>

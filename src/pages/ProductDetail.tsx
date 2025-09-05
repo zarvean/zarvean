@@ -99,7 +99,7 @@ const ProductDetail = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Product Images */}
           <div className="space-y-4">
-            <div className="aspect-[3/4] rounded-sm overflow-hidden bg-muted cursor-pointer">
+            <div className="aspect-[3/4] overflow-hidden bg-muted cursor-pointer">
               <img
                 src={product.images[selectedImageIndex]}
                 alt={product.name}
@@ -112,8 +112,8 @@ const ProductDetail = () => {
               {product.images.map((image, index) => (
                 <div 
                   key={index}
-                  className={`aspect-square rounded-sm overflow-hidden bg-muted cursor-pointer border-2 transition-colors ${
-                    selectedImageIndex === index ? 'border-primary' : 'border-transparent hover:border-muted-foreground'
+                  className={`aspect-square overflow-hidden bg-muted cursor-pointer border-2 transition-colors ${
+                    selectedImageIndex === index ? 'border-black' : 'border-transparent hover:border-muted-foreground'
                   }`}
                   onClick={() => setSelectedImageIndex(index)}
                 >
@@ -140,7 +140,7 @@ const ProductDetail = () => {
                 {product.name}
               </h1>
               
-              <div className="flex items-center gap-4 mb-4">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-4">
                 <div className="flex items-center gap-2">
                   <span className="text-2xl font-serif">RS {product.price}</span>
                   {product.originalPrice && (
@@ -151,7 +151,7 @@ const ProductDetail = () => {
                 </div>
                 <div className="flex items-center gap-1">
                   {[1, 2, 3, 4, 5].map((star) => (
-                    <Star key={star} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                    <Star key={star} className="h-4 w-4 fill-black text-black" />
                   ))}
                   <span className="text-sm text-muted-foreground ml-2">(24 reviews)</span>
                 </div>
@@ -291,8 +291,7 @@ const ProductDetail = () => {
                   <div className="space-y-2">
                     <p>• 30-day return policy for unworn items</p>
                     <p>• Items must be in original condition with tags</p>
-                    <p>• Free returns on orders over RS 5000</p>
-                    <p>• 1-year warranty on manufacturing defects</p>
+                    <p>• Warranty on manufacturing defects</p>
                   </div>
                 </AccordionContent>
               </AccordionItem>
@@ -341,21 +340,21 @@ const ProductDetail = () => {
         {/* Related Products */}
         <div className="mt-20">
           <h2 className="text-2xl font-serif font-semibold mb-8 text-center">You May Also Like</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {products
               .filter(p => p.id !== product.id && p.category === product.category)
               .slice(0, 4)
               .map((relatedProduct) => (
-                <div key={relatedProduct.id} className="product-card group">
+                <div key={relatedProduct.id} className="group">
                   <Link to={`/product/${relatedProduct.id}`}>
-                    <div className="product-image rounded-sm">
+                    <div className="aspect-[3/4] overflow-hidden bg-muted mb-4">
                       <img
                         src={relatedProduct.images[0]}
                         alt={relatedProduct.name}
                         className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                       />
                     </div>
-                    <div className="pt-4 space-y-2">
+                    <div className="space-y-2">
                       <p className="text-xs uppercase tracking-wide text-muted-foreground">
                         {relatedProduct.category}
                       </p>

@@ -32,7 +32,7 @@ const FeaturedProducts = () => {
             Featured Collection
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Handpicked premium shalwar kameez that showcase traditional artistry and modern comfort.
+            Handpicked premium men's wear that showcase traditional artistry and modern comfort.
           </p>
         </div>
 
