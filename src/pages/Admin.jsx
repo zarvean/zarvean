@@ -18,6 +18,7 @@ import Footer from '../components/Footer';
 import AdminShopManager from '../components/AdminShopManager';
 import ReviewsManager from '../components/ReviewsManager';
 import PromoCodesManager from '../components/PromoCodesManager';
+import ImageUpload from '../components/ImageUpload';
 
 const Admin = () => {
   const { user } = useAuth();
@@ -388,15 +389,13 @@ const Admin = () => {
                     />
                   </div>
                   
-                  <div>
-                    <Label htmlFor="image_url">Image URL</Label>
-                    <Input
-                      id="image_url"
-                      value={formData.image_url}
-                      onChange={(e) => setFormData({...formData, image_url: e.target.value})}
-                      placeholder="https://example.com/image.jpg"
-                    />
-                  </div>
+                    <div>
+                      <Label htmlFor="image_url">Product Image</Label>
+                      <ImageUpload
+                        value={formData.image_url}
+                        onChange={(url) => setFormData({...formData, image_url: url})}
+                      />
+                    </div>
                   
                   <div className="grid grid-cols-2 gap-4">
                     <div>
