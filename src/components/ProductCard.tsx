@@ -94,6 +94,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className, style }) 
                 <Heart className={cn("h-4 w-4 transition-all duration-300", inWishlist && "fill-current scale-110")} />
               </Button>
             </div>
+          </div>
 
           {/* Card Body */}
           <div className="p-4 space-y-3">
