@@ -275,8 +275,8 @@ const Shop = () => {
                   </div>
                 </div>
 
-                {/* Section Products Grid - Responsive for mobile */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8 mb-8">
+                {/* Section Products Grid - 2 products per row */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 mb-8">
                   {paginatedProducts.map((product, index) => (
                     <ProductCard 
                       key={product.id} 
@@ -349,7 +349,7 @@ const Shop = () => {
 
               return (
                   <>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
                     {paginatedProducts.map((product, index) => (
                       <ProductCard 
                         key={product.id} 

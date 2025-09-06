@@ -9,7 +9,7 @@ const WhatsAppButton = () => {
     <div className="fixed bottom-6 right-6 z-50">
       <Button
         asChild
-        className="group relative overflow-hidden bg-black text-white border border-white hover:bg-white hover:text-black h-16 w-16 p-0 transition-all duration-300 ease-out"
+        className="group relative overflow-hidden bg-black text-white hover:bg-white hover:text-black h-16 w-16 p-0 rounded-full transition-all duration-300 ease-out shadow-lg"
       >
         <a
           href={whatsappUrl}

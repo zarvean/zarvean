@@ -331,33 +331,47 @@
     @apply transition-all duration-300 ease-out hover:transform hover:-translate-y-1 hover:shadow-lg;
   }
 
-  /* Custom Beautiful Scrollbar */
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
+/* Custom Scrollbar - Black and White Theme */
+::-webkit-scrollbar {
+  width: 12px;
+}
 
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
+::-webkit-scrollbar-track {
+  background: #f8f9fa;
+  border-radius: 0;
+}
 
-  ::-webkit-scrollbar-thumb {
-    background: hsl(var(--foreground) / 0.3);
-    border-radius: 0;
-    transition: all 0.3s ease;
-  }
+::-webkit-scrollbar-thumb {
+  background: #000;
+  border-radius: 0;
+  border: 2px solid #f8f9fa;
+}
 
-  ::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--foreground) / 0.6);
-  }
+::-webkit-scrollbar-thumb:hover {
+  background: #333;
+}
 
-  ::-webkit-scrollbar-corner {
-    background: transparent;
-  }
+::-webkit-scrollbar-corner {
+  background: #f8f9fa;
+}
 
-  /* Firefox scrollbar */
-  * {
-    scrollbar-width: thin;
-    scrollbar-color: hsl(var(--foreground) / 0.3) transparent;
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #000 #f8f9fa;
+}
+  # Page Transitions
+  ".page-transition": {
+    "@apply": "animate-fade-in"
+  },
+  
+  # Button Transitions
+  ".btn-transition": {
+    "@apply": "transition-all duration-300 ease-out hover:scale-105 active:scale-95"
+  },
+  
+  # Stagger Animation
+  ".stagger-animation": {
+    "@apply": "animate-fade-in"
   }
 }

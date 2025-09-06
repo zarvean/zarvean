@@ -35,6 +35,50 @@ export type Database = {
         }
         Relationships: []
       }
+      comments: {
+        Row: {
+          admin_id: string | null
+          content: string
+          created_at: string
+          display_order: number | null
+          id: string
+          is_featured: boolean
+          product_id: string | null
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          admin_id?: string | null
+          content: string
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          is_featured?: boolean
+          product_id?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          admin_id?: string | null
+          content?: string
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          is_featured?: boolean
+          product_id?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       newsletter_subscriptions: {
         Row: {
           created_at: string

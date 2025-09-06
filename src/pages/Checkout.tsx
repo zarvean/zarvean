@@ -115,7 +115,7 @@ const Checkout = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background page-transition">
       <Header />
       <div className="container mx-auto px-container py-16">
         <div className="max-w-6xl mx-auto">
@@ -333,7 +333,7 @@ const Checkout = () => {
                   )}
                 </div>
 
-                <Button type="submit" className="btn-hero w-full">
+                <Button type="submit" className="btn-hero btn-transition w-full">
                   {paymentMethod === 'online' ? (
                     <>
                       <CreditCard className="h-4 w-4 mr-2" />

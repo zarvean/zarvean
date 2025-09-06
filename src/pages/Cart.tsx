@@ -42,7 +42,7 @@ const Cart = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background page-transition">
       <Header />
       <div className="container mx-auto px-container py-16">
         <div className="max-w-4xl mx-auto">
@@ -199,10 +199,10 @@ const Cart = () => {
 
               <div className="space-y-3">
                 <Link to="/checkout">
-                  <Button className="w-full">Proceed to Checkout</Button>
+                  <Button className="w-full btn-transition">Proceed to Checkout</Button>
                 </Link>
                 <Link to="/shop">
-                  <Button variant="outline" className="w-full">Continue Shopping</Button>
+                  <Button variant="outline" className="w-full btn-transition">Continue Shopping</Button>
                 </Link>
               </div>
             </div>

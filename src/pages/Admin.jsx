@@ -18,6 +18,7 @@ import Footer from '../components/Footer';
 import AdminShopManager from '../components/AdminShopManager';
 import ReviewsManager from '../components/ReviewsManager';
 import PromoCodesManager from '../components/PromoCodesManager';
+import CommentManager from '../components/CommentManager';
 import ImageUpload from '../components/ImageUpload';
 
 const Admin = () => {
@@ -337,7 +338,7 @@ const Admin = () => {
       <Header />
       <div className="container mx-auto px-container py-16">
         <div className="max-w-6xl mx-auto">
-          <div className="flex justify-between items-center mb-8">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
             <h1 className="text-3xl font-serif font-semibold">Admin Panel</h1>
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
               <DialogTrigger asChild>
@@ -510,16 +511,17 @@ const Admin = () => {
           </div>
 
           <Tabs defaultValue="products" className="space-y-6">
-            <TabsList>
-              <TabsTrigger value="products">Products</TabsTrigger>
-              <TabsTrigger value="categories">Categories</TabsTrigger>
-              <TabsTrigger value="shop-manager">Shop Manager</TabsTrigger>
-              <TabsTrigger value="reviews">Reviews</TabsTrigger>
-              <TabsTrigger value="promo-codes">Promo Codes</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 gap-1">
+              <TabsTrigger value="products" className="text-xs sm:text-sm">Products</TabsTrigger>
+              <TabsTrigger value="comments" className="text-xs sm:text-sm">Comments</TabsTrigger>
+              <TabsTrigger value="categories" className="text-xs sm:text-sm">Categories</TabsTrigger>
+              <TabsTrigger value="shop-manager" className="text-xs sm:text-sm">Shop</TabsTrigger>
+              <TabsTrigger value="reviews" className="text-xs sm:text-sm">Reviews</TabsTrigger>
+              <TabsTrigger value="promo-codes" className="text-xs sm:text-sm">Promo</TabsTrigger>
             </TabsList>
             
             <TabsContent value="products">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {products.map((product) => (
                   <Card key={product.id}>
                     <CardHeader className="pb-3">
@@ -594,6 +596,10 @@ const Admin = () => {
                   </Card>
                 ))}
               </div>
+            </TabsContent>
+
+            <TabsContent value="comments">
+              <CommentManager />
             </TabsContent>
             
             <TabsContent value="categories">
