@@ -98,12 +98,15 @@ const CommentManager = () => {
     }
 
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
       const commentData = {
         product_id: formData.product_id,
         title: formData.title.trim() || null,
         content: formData.content.trim(),
         is_featured: formData.is_featured,
-        display_order: formData.display_order
+        display_order: formData.display_order,
+        admin_id: user?.id
       };
 
       if (editingComment) {

@@ -7,7 +7,6 @@ import { Label } from '../components/ui/label';
 import { Textarea } from '../components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '../components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Plus, Edit, Trash2, Truck } from 'lucide-react';
@@ -29,6 +28,7 @@ const Admin = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("products");
 
   // Form state
   const [formData, setFormData] = useState({
@@ -510,18 +510,26 @@ const Admin = () => {
             </Dialog>
           </div>
 
-          <Tabs defaultValue="products" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 gap-1">
-              <TabsTrigger value="products" className="text-xs sm:text-sm">Products</TabsTrigger>
-              <TabsTrigger value="comments" className="text-xs sm:text-sm">Comments</TabsTrigger>
-              <TabsTrigger value="categories" className="text-xs sm:text-sm">Categories</TabsTrigger>
-              <TabsTrigger value="shop-manager" className="text-xs sm:text-sm">Shop</TabsTrigger>
-              <TabsTrigger value="reviews" className="text-xs sm:text-sm">Reviews</TabsTrigger>
-              <TabsTrigger value="promo-codes" className="text-xs sm:text-sm">Promo</TabsTrigger>
-            </TabsList>
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-semibold">Admin Management</h2>
+              <Select value={activeTab} onValueChange={setActiveTab}>
+                <SelectTrigger className="w-64">
+                  <SelectValue placeholder="Select section to manage" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="products">Products</SelectItem>
+                  <SelectItem value="comments">Comments</SelectItem>
+                  <SelectItem value="categories">Categories</SelectItem>
+                  <SelectItem value="shop-manager">Shop Manager</SelectItem>
+                  <SelectItem value="reviews">Reviews</SelectItem>
+                  <SelectItem value="promo-codes">Promo Codes</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             
-            <TabsContent value="products">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {activeTab === "products" && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                 {products.map((product) => (
                   <Card key={product.id}>
                     <CardHeader className="pb-3">
@@ -596,14 +604,14 @@ const Admin = () => {
                   </Card>
                 ))}
               </div>
-            </TabsContent>
+            )}
 
-            <TabsContent value="comments">
+            {activeTab === "comments" && (
               <CommentManager />
-            </TabsContent>
+            )}
             
-            <TabsContent value="categories">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {activeTab === "categories" && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                 {categories.map((category) => (
                   <Card key={category.id}>
                     <CardHeader>
@@ -612,20 +620,20 @@ const Admin = () => {
                   </Card>
                 ))}
               </div>
-            </TabsContent>
+            )}
             
-            <TabsContent value="shop-manager">
+            {activeTab === "shop-manager" && (
               <AdminShopManager />
-            </TabsContent>
+            )}
             
-            <TabsContent value="reviews">
+            {activeTab === "reviews" && (
               <ReviewsManager />
-            </TabsContent>
+            )}
             
-            <TabsContent value="promo-codes">
+            {activeTab === "promo-codes" && (
               <PromoCodesManager />
-            </TabsContent>
-          </Tabs>
+            )}
+          </div>
         </div>
       </div>
       <Footer />
