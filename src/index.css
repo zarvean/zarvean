@@ -360,18 +360,18 @@
   scrollbar-width: thin;
   scrollbar-color: #000 #f8f9fa;
 }
-  # Page Transitions
-  ".page-transition": {
-    "@apply": "animate-fade-in"
-  },
-  
-  # Button Transitions
-  ".btn-transition": {
-    "@apply": "transition-all duration-300 ease-out hover:scale-105 active:scale-95"
-  },
-  
-  # Stagger Animation
-  ".stagger-animation": {
-    "@apply": "animate-fade-in"
-  }
+
+/* Page Transitions */
+.page-transition {
+  @apply animate-fade-in;
+}
+
+/* Button Transitions */
+.btn-transition {
+  @apply transition-all duration-300 ease-out hover:scale-105 active:scale-95;
+}
+
+/* Stagger Animation */
+.stagger-animation {
+  @apply animate-fade-in;
 }
