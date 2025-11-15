@@ -19,6 +19,7 @@ import ReviewsManager from '../components/ReviewsManager';
 import PromoCodesManager from '../components/PromoCodesManager';
 import CommentManager from '../components/CommentManager';
 import ImageUpload from '../components/ImageUpload';
+import { Skeleton } from '../components/ui/skeleton';
 
 const Admin = () => {
   const { user } = useAuth();
@@ -326,7 +327,30 @@ const Admin = () => {
       <div className="min-h-screen bg-background">
         <Header />
         <div className="container mx-auto px-container py-16">
-          <div className="text-center">Loading...</div>
+          <div className="max-w-6xl mx-auto">
+            <div className="flex justify-between items-center mb-8">
+              <Skeleton className="h-10 w-48" />
+              <Skeleton className="h-10 w-36" />
+            </div>
+            
+            <Skeleton className="h-10 w-full mb-6" />
+            
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+              {[...Array(8)].map((_, i) => (
+                <Card key={i}>
+                  <CardHeader>
+                    <Skeleton className="h-48 w-full mb-3" />
+                    <Skeleton className="h-5 w-3/4 mb-2" />
+                    <Skeleton className="h-4 w-1/2" />
+                  </CardHeader>
+                  <CardContent>
+                    <Skeleton className="h-8 w-full mb-2" />
+                    <Skeleton className="h-8 w-full" />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
         </div>
         <Footer />
       </div>

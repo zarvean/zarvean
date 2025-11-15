@@ -508,12 +508,9 @@ export type Database = {
         Args: { product_id: string; quantity: number }
         Returns: undefined
       }
-      generate_order_number: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      generate_order_number: { Args: never; Returns: string }
       get_current_user_role: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: Database["public"]["Enums"]["app_role"]
       }
       get_product_analytics: {
@@ -532,10 +529,7 @@ export type Database = {
         }
         Returns: boolean
       }
-      is_admin: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
+      is_admin: { Args: never; Returns: boolean }
       validate_promo_code: {
         Args: { code_text: string; order_amount: number }
         Returns: {

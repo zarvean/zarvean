@@ -6,9 +6,10 @@ import ProductCard from "./ProductCard";
 import { useRef, useEffect } from "react";
 import useEmblaCarousel from 'embla-carousel-react';
 import AutoScroll from 'embla-carousel-auto-scroll';
+import { Skeleton } from "@/components/ui/skeleton";
 
 const FeaturedProducts = () => {
-  const { products } = useProducts();
+  const { products, loading } = useProducts();
   const [emblaRef] = useEmblaCarousel(
     { 
       loop: true,
@@ -22,6 +23,33 @@ const FeaturedProducts = () => {
       stopOnMouseEnter: true
     })]
   );
+
+  if (loading) {
+    return (
+      <section className="section-padding">
+        <div className="container mx-auto">
+          <div className="text-center mb-16">
+            <Skeleton className="h-12 w-96 mx-auto mb-4" />
+            <Skeleton className="h-6 w-[600px] mx-auto" />
+          </div>
+          
+          <div className="flex gap-8 mb-16">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="flex-shrink-0 w-72 space-y-3">
+                <Skeleton className="aspect-[3/4] w-full" />
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+              </div>
+            ))}
+          </div>
+          
+          <div className="text-center">
+            <Skeleton className="h-12 w-48 mx-auto" />
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="section-padding">
