@@ -15,10 +15,11 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useAdmin } from '@/contexts/AdminContext'
 import AdminShopManager from '@/components/AdminShopManager'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Skeleton } from '@/components/ui/skeleton'
 
 const Shop = () => {
   const { user } = useAuth()
-  const { products, categories } = useProducts()
+  const { products, categories, loading } = useProducts()
   const { sections, getProductSections } = useAdmin()
   const [searchParams, setSearchParams] = useSearchParams()
   const [selectedCategory, setSelectedCategory] = useState("All")
@@ -120,6 +121,38 @@ const Shop = () => {
   const handleSortChange = (value: string) => {
     setSortBy(value)
     updateURL(undefined, undefined, value)
+  }
+
+  // Show skeleton while loading
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container mx-auto px-container py-16">
+          <div className="text-center mb-12">
+            <Skeleton className="h-12 w-64 mx-auto mb-4" />
+            <Skeleton className="h-6 w-96 mx-auto" />
+          </div>
+          
+          <div className="flex flex-col lg:flex-row gap-6 mb-12">
+            <Skeleton className="h-10 flex-1" />
+            <Skeleton className="h-10 w-full lg:w-48" />
+            <Skeleton className="h-10 w-full lg:w-48" />
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="space-y-3">
+                <Skeleton className="aspect-[3/4] w-full" />
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+              </div>
+            ))}
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
   }
 
   return (

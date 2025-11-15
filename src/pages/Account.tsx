@@ -12,10 +12,31 @@ import { toast } from '@/hooks/use-toast'
 import { Link } from 'react-router-dom'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import { Skeleton } from '@/components/ui/skeleton'
 
 const Account = () => {
-  const { user, signOut } = useAuth()
+  const { user, signOut, loading } = useAuth()
   const [isEditing, setIsEditing] = useState(false)
+
+  // Show skeleton while loading
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container mx-auto px-container py-16">
+          <Skeleton className="h-12 w-64 mb-8" />
+          <div className="max-w-6xl mx-auto">
+            <Skeleton className="h-10 w-full mb-6" />
+            <div className="space-y-6">
+              <Skeleton className="h-64 w-full" />
+              <Skeleton className="h-64 w-full" />
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   const handleSignOut = async () => {
     try {

@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Package, Truck, Calendar, MapPin } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const Orders = () => {
   const { user, loading } = useAuth();
@@ -33,11 +34,33 @@ const Orders = () => {
     return (
       <div className="min-h-screen bg-background flex flex-col">
         <Header />
-        <div className="flex-grow container mx-auto px-container py-16">
-          <div className="text-center">
-            <div className="animate-pulse space-y-4">
-              <div className="h-8 bg-muted rounded w-64 mx-auto"></div>
-              <div className="h-32 bg-muted rounded"></div>
+        <div className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-16">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-12">
+              <Skeleton className="h-12 w-64 mx-auto mb-4" />
+              <Skeleton className="h-6 w-96 mx-auto" />
+            </div>
+            
+            <div className="space-y-6">
+              {[...Array(3)].map((_, i) => (
+                <Card key={i}>
+                  <CardHeader>
+                    <div className="flex justify-between items-start">
+                      <div className="space-y-2">
+                        <Skeleton className="h-6 w-32" />
+                        <Skeleton className="h-4 w-48" />
+                      </div>
+                      <Skeleton className="h-6 w-24" />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <Skeleton className="h-20 w-full" />
+                      <Skeleton className="h-20 w-full" />
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           </div>
         </div>

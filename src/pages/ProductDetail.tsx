@@ -12,10 +12,11 @@ import { useCart } from '@/contexts/CartContext'
 import { toast } from '@/hooks/use-toast'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import { Skeleton } from '@/components/ui/skeleton'
 
 const ProductDetail = () => {
   const { id } = useParams()
-  const { products } = useProducts()
+  const { products, loading } = useProducts()
   const { addItem } = useCart()
   const [selectedSize, setSelectedSize] = useState("")
   const [selectedColor, setSelectedColor] = useState("")
@@ -24,6 +25,39 @@ const ProductDetail = () => {
   const [showSizeChart, setShowSizeChart] = useState(false)
 
   const product = products.find(p => p.id === id)
+
+  // Show skeleton while loading
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container mx-auto px-container py-8">
+          <Skeleton className="h-6 w-32 mb-8" />
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <div className="space-y-4">
+              <Skeleton className="aspect-[3/4] w-full" />
+              <div className="grid grid-cols-4 gap-2">
+                {[...Array(4)].map((_, i) => (
+                  <Skeleton key={i} className="aspect-square w-full" />
+                ))}
+              </div>
+            </div>
+            
+            <div className="space-y-6">
+              <Skeleton className="h-10 w-3/4" />
+              <Skeleton className="h-8 w-32" />
+              <Skeleton className="h-20 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-12 w-full" />
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   if (!product) {
     return (
